@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 import { ApiError, getReport } from "@/lib/api-client";
 import type { InterviewReport } from "@/lib/types";
@@ -62,6 +63,54 @@ export default function ReportPage() {
     );
   }
 
+  const sections = [
+    <Card key="score">
+      <ScoreCard overallScore={report.overall_score} readinessLevel={report.readiness_level} />
+    </Card>,
+    <Card key="categories">
+      <SectionLabel>Category Scores</SectionLabel>
+      <CategoryScores scores={report.category_scores} />
+    </Card>,
+    <Card key="summary">
+      <SectionLabel>
+        Recruiter Summary
+        <AiTag />
+      </SectionLabel>
+      <p className="text-sm leading-relaxed">{report.recruiter_summary}</p>
+    </Card>,
+    <div key="strengths-improvements" className="grid gap-6 sm:grid-cols-2">
+      <Card>
+        <SectionLabel>
+          Strengths
+          <AiTag />
+        </SectionLabel>
+        <ul className="flex flex-col gap-2 text-sm">
+          {report.strengths.map((s) => (
+            <li key={s}>• {s}</li>
+          ))}
+        </ul>
+      </Card>
+      <Card>
+        <SectionLabel>
+          Areas to Improve
+          <AiTag />
+        </SectionLabel>
+        <ul className="flex flex-col gap-2 text-sm">
+          {report.improvements.map((s) => (
+            <li key={s}>• {s}</li>
+          ))}
+        </ul>
+      </Card>
+    </div>,
+    <Card key="roadmap">
+      <SectionLabel>
+        Learning Roadmap
+        <AiTag />
+      </SectionLabel>
+      <RoadmapList items={report.learning_roadmap} />
+    </Card>,
+  ];
+
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-10">
       <div>
@@ -72,55 +121,16 @@ export default function ReportPage() {
         </p>
       </div>
 
-      <Card>
-        <ScoreCard overallScore={report.overall_score} readinessLevel={report.readiness_level} />
-      </Card>
-
-      <Card>
-        <SectionLabel>Category Scores</SectionLabel>
-        <CategoryScores scores={report.category_scores} />
-      </Card>
-
-      <Card>
-        <SectionLabel>
-          Recruiter Summary
-          <AiTag />
-        </SectionLabel>
-        <p className="text-sm leading-relaxed">{report.recruiter_summary}</p>
-      </Card>
-
-      <div className="grid gap-6 sm:grid-cols-2">
-        <Card>
-          <SectionLabel>
-            Strengths
-            <AiTag />
-          </SectionLabel>
-          <ul className="flex flex-col gap-2 text-sm">
-            {report.strengths.map((s) => (
-              <li key={s}>• {s}</li>
-            ))}
-          </ul>
-        </Card>
-        <Card>
-          <SectionLabel>
-            Areas to Improve
-            <AiTag />
-          </SectionLabel>
-          <ul className="flex flex-col gap-2 text-sm">
-            {report.improvements.map((s) => (
-              <li key={s}>• {s}</li>
-            ))}
-          </ul>
-        </Card>
-      </div>
-
-      <Card>
-        <SectionLabel>
-          Learning Roadmap
-          <AiTag />
-        </SectionLabel>
-        <RoadmapList items={report.learning_roadmap} />
-      </Card>
+      {sections.map((section, index) => (
+        <motion.div
+          key={section.key}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut", delay: index * 0.06 }}
+        >
+          {section}
+        </motion.div>
+      ))}
 
       <div className="flex justify-center gap-4 pb-4">
         <Link href={`/analytics/${params.sessionId}`}>

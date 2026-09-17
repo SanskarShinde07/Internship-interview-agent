@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 
 import {
   ApiError,
@@ -156,33 +157,43 @@ export default function InterviewPage() {
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-10">
       <ProgressBar asked={progress.asked} totalEstimate={progress.total_estimate} />
 
-      <Card>
-        <div className="mb-4 flex items-center justify-between">
-          <RoundBadge round={question.round} />
-          <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted">
-            Difficulty {difficulty}/5
-          </span>
-        </div>
-        <p className="text-lg leading-relaxed">{question.question_text}</p>
-        <div className="mt-3 flex gap-4">
-          <button
-            type="button"
-            onClick={handleRepeat}
-            className="text-xs text-muted underline-offset-2 hover:text-foreground hover:underline"
-          >
-            Repeat question
-          </button>
-          {voice.status === "speaking" && (
-            <button
-              type="button"
-              onClick={voice.stopSpeaking}
-              className="text-xs text-muted underline-offset-2 hover:text-foreground hover:underline"
-            >
-              Stop speaking
-            </button>
-          )}
-        </div>
-      </Card>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={question.question_id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
+          <Card>
+            <div className="mb-4 flex items-center justify-between">
+              <RoundBadge round={question.round} />
+              <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted">
+                Difficulty {difficulty}/5
+              </span>
+            </div>
+            <p className="text-lg leading-relaxed">{question.question_text}</p>
+            <div className="mt-3 flex gap-4">
+              <button
+                type="button"
+                onClick={handleRepeat}
+                className="text-xs text-muted underline-offset-2 hover:text-foreground hover:underline"
+              >
+                Repeat question
+              </button>
+              {voice.status === "speaking" && (
+                <button
+                  type="button"
+                  onClick={voice.stopSpeaking}
+                  className="text-xs text-muted underline-offset-2 hover:text-foreground hover:underline"
+                >
+                  Stop speaking
+                </button>
+              )}
+            </div>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
 
       <MicButton
         status={voice.status}

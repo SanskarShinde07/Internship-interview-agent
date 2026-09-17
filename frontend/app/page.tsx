@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 const FEATURES = [
   {
@@ -21,7 +24,12 @@ const FEATURES = [
 export default function LandingPage() {
   return (
     <main className="flex flex-1 flex-col items-center px-6">
-      <section className="flex flex-col items-center gap-6 py-20 text-center sm:py-28">
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="flex flex-col items-center gap-6 py-20 text-center sm:py-28"
+      >
         <span className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted">
           ML Engineer Internship Prep
         </span>
@@ -38,14 +46,20 @@ export default function LandingPage() {
         >
           Start Mock Interview
         </Link>
-      </section>
+      </motion.section>
 
       <section className="grid w-full max-w-4xl gap-4 pb-24 sm:grid-cols-3">
-        {FEATURES.map((feature) => (
-          <div key={feature.title} className="rounded-2xl border border-border bg-surface p-6">
+        {FEATURES.map((feature, index) => (
+          <motion.div
+            key={feature.title}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: 0.15 + index * 0.08 }}
+            className="rounded-2xl border border-border bg-surface p-6"
+          >
             <h2 className="mb-2 text-sm font-semibold">{feature.title}</h2>
             <p className="text-sm text-muted">{feature.description}</p>
-          </div>
+          </motion.div>
         ))}
       </section>
     </main>

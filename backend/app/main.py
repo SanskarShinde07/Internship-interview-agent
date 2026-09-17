@@ -8,7 +8,14 @@ from app.core.errors import register_exception_handlers
 
 def create_app() -> FastAPI:
     settings = get_settings()
-    app = FastAPI(title="InterVue AI Backend", version="0.1.0")
+    is_production = settings.environment == "production"
+    app = FastAPI(
+        title="InterVue AI Backend",
+        version="0.1.0",
+        docs_url=None if is_production else "/docs",
+        redoc_url=None if is_production else "/redoc",
+        openapi_url=None if is_production else "/openapi.json",
+    )
 
     app.add_middleware(
         CORSMiddleware,
