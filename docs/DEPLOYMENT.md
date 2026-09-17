@@ -76,9 +76,9 @@ setup -> instructions -> interview (a few answers) -> report -> analytics
 - The `ENVIRONMENT=production` env var (set by `render.yaml`) disables
   the `/docs`, `/redoc`, and `/openapi.json` endpoints on the backend -
   this is expected, not a bug.
-- SQLite lives on a small persistent disk attached to the Render service
-  (`render.yaml`'s `disk` block). It survives restarts and redeploys but
-  not disk deletion. See BLUEPRINT.md §21 for the Postgres migration path
-  if you outgrow it.
+- Render's free tier doesn't support persistent disks, so SQLite lives on
+  the instance's ephemeral local disk and resets on every redeploy or
+  restart. That's fine for a practice-interview demo; see BLUEPRINT.md
+  §21 for the Postgres migration path if you need data to persist.
 - Rotating `GEMINI_API_KEY` or changing `ALLOWED_ORIGINS` only requires a
   redeploy of the backend service, not the frontend.

@@ -1,9 +1,14 @@
 # Render Blueprint (docs/BLUEPRINT.md §21). Deploy via
 # https://dashboard.render.com/blueprints -> point at this repo. Render
 # auto-detects this file at the repo root; `rootDir: backend` below tells
-# it where the actual service code lives in this monorepo. A persistent
-# disk keeps the SQLite file across deploys/restarts; migrate to Postgres
-# (see §21) if you outgrow it.
+# it where the actual service code lives in this monorepo.
+#
+# No persistent disk: Render's free tier doesn't support one. SQLite
+# lives on the free-tier instance's ephemeral local disk, so the DB
+# resets on every redeploy/restart - acceptable for a mock-interview demo
+# app where sessions are practice runs, not permanent records. Upgrade to
+# a paid plan and add a `disk:` block (see git history), or migrate to
+# Postgres (§21), if you need data to persist.
 services:
   - type: web
     name: intervue-ai-backend
@@ -12,15 +17,11 @@ services:
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: bash scripts/start_prod.sh
-    disk:
-      name: intervue-data
-      mountPath: /opt/render/project/src/backend/data
-      sizeGB: 1
     envVars:
       - key: ENVIRONMENT
         value: production
       - key: DATABASE_URL
-        value: sqlite:////opt/render/project/src/backend/data/intervue.db
+        value: sqlite:///./data/intervue.db
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
