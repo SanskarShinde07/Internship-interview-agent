@@ -1,0 +1,169 @@
+[
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "fundamentals",
+    "subtopic": "supervised_unsupervised",
+    "difficulty": 1,
+    "question_text": "What's the difference between supervised and unsupervised learning? Can you give one example algorithm for each?",
+    "expected_concepts": ["supervised_learning", "unsupervised_learning", "labeled_data", "clustering"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "regression",
+    "subtopic": "linear_regression",
+    "difficulty": 1,
+    "question_text": "How does linear regression find the best-fit line? What is it actually minimizing?",
+    "expected_concepts": ["least_squares", "cost_function", "gradient_descent", "coefficients"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "regression",
+    "subtopic": "regularization",
+    "difficulty": 3,
+    "question_text": "What's the difference between L1 (Lasso) and L2 (Ridge) regularization? How does each affect the model's coefficients?",
+    "expected_concepts": ["L1_regularization", "L2_regularization", "sparsity", "coefficient_shrinkage"],
+    "prerequisites": ["linear_regression"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "classification",
+    "subtopic": "logistic_regression",
+    "difficulty": 2,
+    "question_text": "Why can't we just use linear regression for a classification problem? How does logistic regression fix this?",
+    "expected_concepts": ["sigmoid_function", "decision_boundary", "probability_output", "log_loss"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "classification",
+    "subtopic": "knn",
+    "difficulty": 2,
+    "question_text": "How does the K-Nearest Neighbors algorithm classify a new point? What happens if K is too small or too large?",
+    "expected_concepts": ["distance_metric", "k_value", "overfitting", "underfitting", "lazy_learning"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "classification",
+    "subtopic": "naive_bayes",
+    "difficulty": 2,
+    "question_text": "What does the 'naive' in Naive Bayes refer to? Why does this assumption often work well in practice despite being unrealistic?",
+    "expected_concepts": ["conditional_independence_assumption", "bayes_theorem", "prior_probability", "text_classification"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "classification",
+    "subtopic": "svm",
+    "difficulty": 3,
+    "question_text": "What is the intuition behind the 'margin' in a Support Vector Machine? What role does the kernel trick play when data isn't linearly separable?",
+    "expected_concepts": ["maximum_margin", "support_vectors", "kernel_trick", "linear_separability"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "trees_ensembles",
+    "subtopic": "decision_trees",
+    "difficulty": 2,
+    "question_text": "How does a decision tree decide which feature to split on at each node? What are Gini impurity and entropy measuring?",
+    "expected_concepts": ["information_gain", "gini_impurity", "entropy", "recursive_partitioning"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "trees_ensembles",
+    "subtopic": "random_forest",
+    "difficulty": 3,
+    "question_text": "How does Random Forest reduce the variance of a single decision tree? What are the two sources of randomness it introduces?",
+    "expected_concepts": ["bagging", "bootstrap_sampling", "feature_randomness", "variance_reduction"],
+    "prerequisites": ["decision_trees"],
+    "followup_hints": ["Ask about the difference between bagging and boosting", "Ask why more trees don't cause overfitting the way a single deeper tree would"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "trees_ensembles",
+    "subtopic": "boosting",
+    "difficulty": 4,
+    "question_text": "What is the core difference between bagging and boosting? Explain how gradient boosting (e.g. XGBoost) iteratively improves a model.",
+    "expected_concepts": ["boosting", "sequential_learning", "residuals", "gradient_boosting", "weak_learners"],
+    "prerequisites": ["random_forest"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "model_evaluation",
+    "subtopic": "overfitting_underfitting",
+    "difficulty": 1,
+    "question_text": "What is overfitting? How would you tell from a training/validation curve that a model is overfitting versus underfitting?",
+    "expected_concepts": ["overfitting", "underfitting", "generalization", "training_validation_gap"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "model_evaluation",
+    "subtopic": "bias_variance",
+    "difficulty": 3,
+    "question_text": "Explain the bias-variance tradeoff. How does increasing model complexity typically affect bias and variance?",
+    "expected_concepts": ["bias", "variance", "tradeoff", "model_complexity", "irreducible_error"],
+    "prerequisites": ["overfitting_underfitting"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "model_evaluation",
+    "subtopic": "cross_validation",
+    "difficulty": 2,
+    "question_text": "Why do we use k-fold cross-validation instead of a single train/test split? What's a downside of cross-validation?",
+    "expected_concepts": ["k_fold", "train_test_split", "variance_of_estimate", "computational_cost"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "model_evaluation",
+    "subtopic": "metrics",
+    "difficulty": 3,
+    "question_text": "For a highly imbalanced classification problem (e.g. 99% negative, 1% positive), why is accuracy a misleading metric? What would you use instead?",
+    "expected_concepts": ["precision", "recall", "f1_score", "class_imbalance", "roc_auc", "confusion_matrix"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "model_evaluation",
+    "subtopic": "hyperparameter_tuning",
+    "difficulty": 3,
+    "question_text": "What's the difference between a model parameter and a hyperparameter? Compare grid search and random search for hyperparameter tuning.",
+    "expected_concepts": ["hyperparameter", "grid_search", "random_search", "search_space"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "feature_engineering",
+    "subtopic": "scaling_encoding",
+    "difficulty": 2,
+    "question_text": "Why do some models (like KNN or SVM) require feature scaling while others (like decision trees) don't? How would you encode a categorical feature with high cardinality?",
+    "expected_concepts": ["feature_scaling", "standardization", "normalization", "one_hot_encoding", "high_cardinality"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "feature_engineering",
+    "subtopic": "feature_selection",
+    "difficulty": 4,
+    "question_text": "You have 500 features and only 2000 training examples. What risks does this pose, and what techniques would you use to select or reduce features?",
+    "expected_concepts": ["curse_of_dimensionality", "feature_selection", "dimensionality_reduction", "PCA", "regularization"],
+    "prerequisites": ["scaling_encoding"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "unsupervised_learning",
+    "subtopic": "clustering",
+    "difficulty": 3,
+    "question_text": "How does K-Means clustering work, and what is a major limitation of it? How would you choose the number of clusters K?",
+    "expected_concepts": ["centroid", "elbow_method", "convergence", "cluster_shape_assumption"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "unsupervised_learning",
+    "subtopic": "dimensionality_reduction",
+    "difficulty": 4,
+    "question_text": "What does PCA actually compute, geometrically? How do you decide how many principal components to keep?",
+    "expected_concepts": ["principal_components", "variance_explained", "eigenvectors", "dimensionality_reduction"]
+  },
+  {
+    "round": "MACHINE_LEARNING",
+    "topic": "model_evaluation",
+    "subtopic": "learning_curves",
+    "difficulty": 5,
+    "question_text": "You're training a model and both training and validation error are high and close to each other. Is this overfitting or underfitting, and what specific changes would you try next?",
+    "expected_concepts": ["underfitting", "learning_curves", "model_capacity", "diagnostic_reasoning"],
+    "prerequisites": ["bias_variance"]
+  }
+]
