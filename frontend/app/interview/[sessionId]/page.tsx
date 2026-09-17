@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import {
@@ -8,13 +8,16 @@ import {
   endSession,
   getCurrentQuestion,
   getSession,
+  repeatQuestion,
   submitAnswer,
 } from "@/lib/api-client";
 import type { Question } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { MicButton } from "@/components/interview/MicButton";
 import { ProgressBar } from "@/components/interview/ProgressBar";
 import { RoundBadge } from "@/components/interview/RoundBadge";
+import { useVoiceTurn } from "@/hooks/useVoiceTurn";
 
 export default function InterviewPage() {
   const params = useParams<{ sessionId: string }>();
@@ -28,6 +31,9 @@ export default function InterviewPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const voice = useVoiceTurn();
+  const spokenQuestionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +67,29 @@ export default function InterviewPage() {
       cancelled = true;
     };
   }, [sessionId, router]);
+
+  useEffect(() => {
+    if (!question || spokenQuestionIdRef.current === question.question_id) return;
+    spokenQuestionIdRef.current = question.question_id;
+    voice.speak(question.question_text);
+    // voice.speak is stable across renders (useCallback with no deps); only
+    // re-run this when the question itself actually changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question]);
+
+  function handleVoiceResult(finalText: string) {
+    setTranscript((prev) => (prev ? `${prev} ${finalText}` : finalText));
+  }
+
+  async function handleRepeat() {
+    try {
+      const result = await repeatQuestion(sessionId);
+      voice.speak(result.question_text);
+    } catch {
+      // Repeating is a convenience, not critical - fail silently and let
+      // the candidate re-read the question text already on screen.
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -133,13 +162,40 @@ export default function InterviewPage() {
           <span className="text-xs text-neutral-500">Difficulty {difficulty}/5</span>
         </div>
         <p className="text-lg leading-relaxed">{question.question_text}</p>
+        <div className="mt-3 flex gap-4">
+          <button
+            type="button"
+            onClick={handleRepeat}
+            className="text-xs text-neutral-400 underline-offset-2 hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+          >
+            Repeat question
+          </button>
+          {voice.status === "speaking" && (
+            <button
+              type="button"
+              onClick={voice.stopSpeaking}
+              className="text-xs text-neutral-400 underline-offset-2 hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+            >
+              Stop speaking
+            </button>
+          )}
+        </div>
       </Card>
+
+      <MicButton
+        status={voice.status}
+        interimText={voice.interimText}
+        recognitionSupported={voice.recognitionSupported}
+        voiceError={voice.voiceError}
+        onStart={() => voice.startListening(handleVoiceResult)}
+        onStop={voice.stopListening}
+      />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <textarea
           value={transcript}
           onChange={(e) => setTranscript(e.target.value)}
-          placeholder="Type your answer here..."
+          placeholder="Type your answer here, or use the microphone above..."
           rows={6}
           className="w-full resize-none rounded-xl border border-neutral-300 p-4 text-base outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900"
           disabled={isSubmitting}
@@ -153,7 +209,10 @@ export default function InterviewPage() {
           >
             End interview
           </button>
-          <Button type="submit" disabled={isSubmitting || !transcript.trim()}>
+          <Button
+            type="submit"
+            disabled={isSubmitting || voice.status === "listening" || !transcript.trim()}
+          >
             {isSubmitting ? "Submitting..." : "Submit answer"}
           </Button>
         </div>
