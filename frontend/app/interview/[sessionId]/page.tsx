@@ -138,7 +138,7 @@ export default function InterviewPage() {
   if (isLoading) {
     return (
       <main className="flex flex-1 items-center justify-center px-6">
-        <p className="text-neutral-500">Loading your interview...</p>
+        <p className="text-muted">Loading your interview...</p>
       </main>
     );
   }
@@ -146,7 +146,7 @@ export default function InterviewPage() {
   if (!question) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="text-red-600">{error ?? "Something went wrong."}</p>
+        <p className="text-danger">{error ?? "Something went wrong."}</p>
         <Button onClick={() => router.push("/")}>Back to start</Button>
       </main>
     );
@@ -159,14 +159,16 @@ export default function InterviewPage() {
       <Card>
         <div className="mb-4 flex items-center justify-between">
           <RoundBadge round={question.round} />
-          <span className="text-xs text-neutral-500">Difficulty {difficulty}/5</span>
+          <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted">
+            Difficulty {difficulty}/5
+          </span>
         </div>
         <p className="text-lg leading-relaxed">{question.question_text}</p>
         <div className="mt-3 flex gap-4">
           <button
             type="button"
             onClick={handleRepeat}
-            className="text-xs text-neutral-400 underline-offset-2 hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+            className="text-xs text-muted underline-offset-2 hover:text-foreground hover:underline"
           >
             Repeat question
           </button>
@@ -174,7 +176,7 @@ export default function InterviewPage() {
             <button
               type="button"
               onClick={voice.stopSpeaking}
-              className="text-xs text-neutral-400 underline-offset-2 hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+              className="text-xs text-muted underline-offset-2 hover:text-foreground hover:underline"
             >
               Stop speaking
             </button>
@@ -197,15 +199,15 @@ export default function InterviewPage() {
           onChange={(e) => setTranscript(e.target.value)}
           placeholder="Type your answer here, or use the microphone above..."
           rows={6}
-          className="w-full resize-none rounded-xl border border-neutral-300 p-4 text-base outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900"
+          className="w-full resize-none rounded-xl border border-border bg-surface p-4 text-base text-foreground outline-none placeholder:text-muted focus:border-accent disabled:opacity-60"
           disabled={isSubmitting}
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <div className="flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleEnd}
-            className="text-sm text-neutral-400 underline-offset-2 hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+            className="text-sm text-muted underline-offset-2 hover:text-foreground hover:underline"
           >
             End interview
           </button>

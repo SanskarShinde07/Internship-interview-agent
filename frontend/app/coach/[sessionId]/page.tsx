@@ -74,24 +74,24 @@ export default function CoachPage() {
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-6 py-10">
       <div>
         <h1 className="text-2xl font-semibold">Post-Interview Coach</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted">
           Ask about your performance, specific answers, or what to study next.
         </p>
       </div>
 
       <Card className="flex max-h-[60vh] min-h-[400px] flex-1 flex-col gap-3 overflow-y-auto">
         {isLoadingHistory ? (
-          <p className="text-sm text-neutral-500">Loading conversation...</p>
+          <p className="text-sm text-muted">Loading conversation...</p>
         ) : messages.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-            <p className="text-sm text-neutral-500">Ask me anything about your interview.</p>
+            <p className="text-sm text-muted">Ask me anything about your interview.</p>
             <div className="flex flex-wrap justify-center gap-2">
               {SUGGESTED_PROMPTS.map((prompt) => (
                 <button
                   key={prompt}
                   type="button"
                   onClick={() => sendMessage(prompt)}
-                  className="rounded-full border border-neutral-300 px-3 py-1.5 text-xs hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                  className="rounded-full border border-border px-3 py-1.5 text-xs hover:bg-surface-hover"
                 >
                   {prompt}
                 </button>
@@ -108,7 +108,7 @@ export default function CoachPage() {
         )}
       </Card>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <form
         onSubmit={(e) => {
@@ -122,7 +122,7 @@ export default function CoachPage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask the coach..."
-          className="flex-1 rounded-full border border-neutral-300 px-4 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900"
+          className="flex-1 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground outline-none placeholder:text-muted focus:border-accent"
           disabled={isSending}
         />
         <Button type="submit" disabled={isSending || !input.trim()}>

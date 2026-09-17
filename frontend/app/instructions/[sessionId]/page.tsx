@@ -78,7 +78,7 @@ export default function InstructionsPage() {
     <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
       <Card className="w-full max-w-xl">
         <h1 className="mb-2 text-2xl font-semibold">How this works</h1>
-        <p className="mb-6 text-sm text-neutral-500">
+        <p className="mb-6 text-sm text-muted">
           You&apos;ll go through seven short rounds. Difficulty adapts to how you answer, and
           the interviewer may ask natural follow-up questions based on what you say.
         </p>
@@ -86,16 +86,16 @@ export default function InstructionsPage() {
           {ROUNDS.map((round) => (
             <li
               key={round.name}
-              className="flex flex-col rounded-lg bg-neutral-50 p-3 dark:bg-neutral-800"
+              className="flex flex-col rounded-lg border border-border bg-background p-3"
             >
               <span className="text-sm font-semibold">{round.name}</span>
-              <span className="text-sm text-neutral-500">{round.detail}</span>
+              <span className="text-sm text-muted">{round.detail}</span>
             </li>
           ))}
         </ul>
 
         {voiceSupported ? (
-          <div className="mb-6 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+          <div className="mb-6 rounded-lg border border-border p-4">
             <p className="mb-3 text-sm">
               You can answer by voice or by typing. Let&apos;s check your microphone works.
             </p>
@@ -109,28 +109,28 @@ export default function InstructionsPage() {
                 {micStatus === "checking" ? "Checking..." : "Test microphone"}
               </Button>
               {micStatus === "granted" && (
-                <span className="text-sm text-green-600">Microphone works.</span>
+                <span className="text-sm text-success">Microphone works.</span>
               )}
               {micStatus === "denied" && (
-                <span className="text-sm text-red-600">
+                <span className="text-sm text-danger">
                   Access denied — you can still type your answers.
                 </span>
               )}
               {micStatus === "unavailable" && (
-                <span className="text-sm text-red-600">
+                <span className="text-sm text-danger">
                   No microphone detected — you can still type your answers.
                 </span>
               )}
             </div>
           </div>
         ) : (
-          <p className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-xs text-yellow-800 dark:border-yellow-900 dark:bg-yellow-900/20 dark:text-yellow-300">
+          <p className="mb-6 rounded-lg border border-warning/30 bg-warning-bg p-3 text-xs text-warning">
             Voice isn&apos;t supported in this browser. Chrome or Edge are recommended for voice
             — you can still complete the interview by typing your answers.
           </p>
         )}
 
-        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+        {error && <p className="mb-4 text-sm text-danger">{error}</p>}
         <Button onClick={handleStart} disabled={isStarting} className="w-full">
           {isStarting ? "Starting..." : "I'm ready - start the interview"}
         </Button>

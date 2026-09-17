@@ -11,9 +11,7 @@ import { StatTile } from "@/components/analytics/StatTile";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-3 text-sm font-semibold tracking-wide text-neutral-500 uppercase">
-      {children}
-    </h2>
+    <h2 className="mb-3 text-sm font-semibold tracking-wide text-muted uppercase">{children}</h2>
   );
 }
 
@@ -47,7 +45,7 @@ export default function AnalyticsPage() {
   if (error) {
     return (
       <main className="flex flex-1 items-center justify-center px-6 text-center">
-        <p className="text-red-600">{error}</p>
+        <p className="text-danger">{error}</p>
       </main>
     );
   }
@@ -55,7 +53,7 @@ export default function AnalyticsPage() {
   if (!analytics) {
     return (
       <main className="flex flex-1 items-center justify-center px-6">
-        <p className="text-neutral-500">Loading analytics...</p>
+        <p className="text-muted">Loading analytics...</p>
       </main>
     );
   }
@@ -89,7 +87,7 @@ export default function AnalyticsPage() {
           ))}
         </div>
         {analytics.strongest_topic && (
-          <p className="mt-4 text-xs text-neutral-500">
+          <p className="mt-4 text-xs text-muted">
             Strongest:{" "}
             <span className="font-medium">{analytics.strongest_topic.replace(/_/g, " ")}</span>
             {" · "}
@@ -102,19 +100,19 @@ export default function AnalyticsPage() {
       <Card>
         <SectionLabel>Adaptive Difficulty Progression</SectionLabel>
         {analytics.difficulty_progression.length === 0 ? (
-          <p className="text-sm text-neutral-500">Difficulty stayed constant throughout.</p>
+          <p className="text-sm text-muted">Difficulty stayed constant throughout.</p>
         ) : (
           <ul className="flex flex-col gap-1 text-sm">
             {analytics.difficulty_progression.map((d) => (
               <li
                 key={d.sequence_number}
-                className="flex justify-between border-b border-neutral-100 py-1 last:border-0 dark:border-neutral-800"
+                className="flex justify-between border-b border-border py-1 last:border-0"
               >
                 <span>Q{d.sequence_number}</span>
                 <span>
                   {d.previous_difficulty} → {d.new_difficulty}
                 </span>
-                <span className="text-neutral-500">{d.reason.replace(/_/g, " ").toLowerCase()}</span>
+                <span className="text-muted">{d.reason.replace(/_/g, " ").toLowerCase()}</span>
               </li>
             ))}
           </ul>
@@ -127,12 +125,12 @@ export default function AnalyticsPage() {
           {analytics.interview_timeline.map((t) => (
             <li
               key={t.sequence_number}
-              className="flex justify-between border-b border-neutral-100 py-1 last:border-0 dark:border-neutral-800"
+              className="flex justify-between border-b border-border py-1 last:border-0"
             >
               <span>#{t.sequence_number}</span>
               <span>{t.round}</span>
               <span>{t.topic.replace(/_/g, " ")}</span>
-              <span className="text-neutral-500">d{t.difficulty}</span>
+              <span className="text-muted">d{t.difficulty}</span>
             </li>
           ))}
         </ul>

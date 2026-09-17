@@ -6,10 +6,10 @@ const READINESS_LABELS: Record<string, string> = {
 };
 
 const READINESS_COLORS: Record<string, string> = {
-  NOT_READY: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-  DEVELOPING: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
-  READY: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  STRONG: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+  NOT_READY: "bg-danger-bg text-danger",
+  DEVELOPING: "bg-warning-bg text-warning",
+  READY: "bg-info-bg text-info",
+  STRONG: "bg-success-bg text-success",
 };
 
 export function ScoreCard({
@@ -23,7 +23,7 @@ export function ScoreCard({
     <div className="flex items-center gap-6">
       <div className="text-5xl font-bold">{overallScore}</div>
       <div>
-        <div className="text-sm text-neutral-500">out of 100 — deterministic score</div>
+        <div className="text-sm text-muted">out of 100 — deterministic score</div>
         <span
           className={`mt-1 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
             READINESS_COLORS[readinessLevel] ?? ""

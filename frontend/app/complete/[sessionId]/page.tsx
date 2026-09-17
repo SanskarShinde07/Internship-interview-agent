@@ -20,9 +20,7 @@ export default function CompletePage() {
     <main className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
       <Card className="max-w-md">
         <h1 className="mb-2 text-xl font-semibold">Interview complete</h1>
-        <p className="text-sm text-neutral-500">
-          Generating your recruiter report and analytics...
-        </p>
+        <p className="text-sm text-muted">Generating your recruiter report and analytics...</p>
       </Card>
     </main>
   );

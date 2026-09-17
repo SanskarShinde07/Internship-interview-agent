@@ -14,15 +14,13 @@ import { ScoreCard } from "@/components/report/ScoreCard";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-3 text-sm font-semibold tracking-wide text-neutral-500 uppercase">
-      {children}
-    </h2>
+    <h2 className="mb-3 text-sm font-semibold tracking-wide text-muted uppercase">{children}</h2>
   );
 }
 
 function AiTag() {
   return (
-    <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-normal tracking-normal text-neutral-500 normal-case dark:bg-neutral-800">
+    <span className="ml-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-normal tracking-normal text-accent normal-case">
       AI-generated
     </span>
   );
@@ -51,7 +49,7 @@ export default function ReportPage() {
   if (error) {
     return (
       <main className="flex flex-1 items-center justify-center px-6 text-center">
-        <p className="text-red-600">{error}</p>
+        <p className="text-danger">{error}</p>
       </main>
     );
   }
@@ -59,7 +57,7 @@ export default function ReportPage() {
   if (!report) {
     return (
       <main className="flex flex-1 items-center justify-center px-6">
-        <p className="text-neutral-500">Generating your report...</p>
+        <p className="text-muted">Generating your report...</p>
       </main>
     );
   }
@@ -68,7 +66,7 @@ export default function ReportPage() {
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-10">
       <div>
         <h1 className="text-2xl font-semibold">Your Recruiter Report</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted">
           Scores below are computed deterministically from your interview. The summary and
           roadmap are AI-generated based on those scores.
         </p>

@@ -18,7 +18,10 @@ test("full interview journey: landing through coach", async ({ page }) => {
   });
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "InterVue AI" })).toBeVisible();
+  await expect(page.getByRole("banner").getByText("InterVue AI")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /practice interviews that actually adapt to you/i }),
+  ).toBeVisible();
   await page.getByRole("link", { name: /start mock interview/i }).click();
 
   await page.waitForURL("**/setup");

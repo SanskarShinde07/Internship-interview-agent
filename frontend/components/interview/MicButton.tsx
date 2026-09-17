@@ -27,7 +27,7 @@ export function MicButton({
 }) {
   if (!recognitionSupported) {
     return (
-      <p className="text-center text-xs text-neutral-500">
+      <p className="text-center text-xs text-muted">
         Voice input isn&apos;t supported in this browser. Chrome or Edge are recommended for
         voice — you can still type your answer below.
       </p>
@@ -45,13 +45,13 @@ export function MicButton({
         aria-label={isListening ? "Stop recording" : "Start recording your answer"}
         className={`flex h-16 w-16 items-center justify-center rounded-full text-2xl transition disabled:cursor-not-allowed disabled:opacity-40 ${
           isListening
-            ? "animate-pulse bg-red-500 text-white"
-            : "bg-neutral-900 text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900"
+            ? "animate-pulse bg-danger text-white"
+            : "bg-accent text-accent-foreground hover:bg-accent-hover"
         }`}
       >
         {isListening ? "■" : "🎤"}
       </button>
-      <p className="min-h-[1.25rem] max-w-sm text-center text-sm text-neutral-500">
+      <p className="min-h-[1.25rem] max-w-sm text-center text-sm text-muted">
         {isListening
           ? interimText || "Listening..."
           : status === "speaking"
@@ -59,9 +59,7 @@ export function MicButton({
             : "Tap to answer by voice"}
       </p>
       {voiceError && (
-        <p className="max-w-sm text-center text-xs text-red-600">
-          {ERROR_MESSAGES[voiceError]}
-        </p>
+        <p className="max-w-sm text-center text-xs text-danger">{ERROR_MESSAGES[voiceError]}</p>
       )}
     </div>
   );
