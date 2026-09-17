@@ -20,7 +20,7 @@ from app.db.models import (
     QuestionType,
     SessionState,
 )
-from app.orchestrator.round_controller import ROUND_CONFIGS
+from app.orchestrator.round_controller import expected_total_questions
 
 
 @dataclass
@@ -58,9 +58,6 @@ class AnalyticsResult:
     interview_completion_rate: float
     adaptive_difficulty_changes: int
     interview_timeline: list[TimelineEntry] = field(default_factory=list)
-
-
-_EXPECTED_TOTAL_QUESTIONS = sum(config.min_questions for config in ROUND_CONFIGS.values())
 
 
 def compute_analytics(db: Session, session_id: uuid.UUID) -> AnalyticsResult:
@@ -151,7 +148,7 @@ def compute_analytics(db: Session, session_id: uuid.UUID) -> AnalyticsResult:
     if session.state == SessionState.COMPLETED:
         completion_rate = 1.0
     else:
-        completion_rate = min(1.0, total_questions / _EXPECTED_TOTAL_QUESTIONS)
+        completion_rate = min(1.0, total_questions / expected_total_questions())
 
     timeline = [
         TimelineEntry(

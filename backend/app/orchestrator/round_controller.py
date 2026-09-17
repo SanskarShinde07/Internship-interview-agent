@@ -63,3 +63,11 @@ MAX_TOP_LEVEL_PROJECTS = 2
 
 def get_round_config(state: SessionState) -> RoundConfig:
     return ROUND_CONFIGS[state]
+
+
+def expected_total_questions() -> int:
+    """A rough baseline for progress/completion-rate estimates: the sum of
+    every round's minimum question count. Not a hard prediction - actual
+    interviews vary with follow-ups and adaptive branching.
+    """
+    return sum(config.min_questions for config in ROUND_CONFIGS.values())

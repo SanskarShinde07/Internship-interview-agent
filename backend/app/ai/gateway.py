@@ -22,9 +22,18 @@ from abc import ABC, abstractmethod
 import google.generativeai as genai
 from pydantic import ValidationError
 
+from app.ai.prompts import coach as coach_prompts
 from app.ai.prompts import evaluator as evaluator_prompts
 from app.ai.prompts import interviewer as interviewer_prompts
-from app.ai.schemas import EvaluationOutput, InterviewerMode, InterviewerOutput
+from app.ai.prompts import recruiter as recruiter_prompts
+from app.ai.schemas import (
+    CoachReplyOutput,
+    EvaluationOutput,
+    InterviewerMode,
+    InterviewerOutput,
+    LearningRoadmapItem,
+    RecruiterNarrativeOutput,
+)
 from app.config import get_settings
 from app.db.models import QuestionType
 
@@ -56,6 +65,20 @@ class AIGateway(ABC):
         expected_concepts: list[str],
         transcript_text: str,
     ) -> EvaluationOutput: ...
+
+    @abstractmethod
+    def generate_recruiter_narrative(
+        self,
+        *,
+        overall_score: int,
+        readiness_level: str,
+        category_scores: dict[str, float | None],
+        strong_topics: list[str],
+        weak_topics: list[str],
+    ) -> RecruiterNarrativeOutput: ...
+
+    @abstractmethod
+    def coach_reply(self, *, candidate_message: str, context_text: str) -> CoachReplyOutput: ...
 
 
 class StubAIGateway(AIGateway):
@@ -126,6 +149,59 @@ class StubAIGateway(AIGateway):
             reasoning="stub evaluation based on keyword overlap with expected concepts",
         )
 
+    def generate_recruiter_narrative(
+        self,
+        *,
+        overall_score: int,
+        readiness_level: str,
+        category_scores: dict[str, float | None],
+        strong_topics: list[str],
+        weak_topics: list[str],
+    ) -> RecruiterNarrativeOutput:
+        strengths = [
+            f"Demonstrated solid understanding of {topic.replace('_', ' ')}."
+            for topic in strong_topics
+        ] or ["Completed the full interview with consistent, on-topic effort."]
+
+        improvements = [
+            f"Review the fundamentals of {topic.replace('_', ' ')} and practice related problems."
+            for topic in weak_topics
+        ] or ["Continue practicing to build further depth across topics."]
+
+        strong_summary = ", ".join(t.replace("_", " ") for t in strong_topics[:3]) or "a few areas"
+        weak_summary = ", ".join(t.replace("_", " ") for t in weak_topics[:3]) or "some areas"
+        summary = (
+            f"The candidate scored {overall_score}/100 overall ({readiness_level.title()}), "
+            f"showing particular strength in {strong_summary} and room to grow in {weak_summary}."
+        )
+
+        roadmap = [
+            LearningRoadmapItem(
+                topic=topic,
+                action=(
+                    f"Study {topic.replace('_', ' ')} fundamentals and "
+                    "solve practice problems on it."
+                ),
+                priority="HIGH",
+            )
+            for topic in weak_topics
+        ]
+
+        return RecruiterNarrativeOutput(
+            recruiter_summary=summary,
+            strengths=strengths,
+            improvements=improvements,
+            learning_roadmap=roadmap,
+        )
+
+    def coach_reply(self, *, candidate_message: str, context_text: str) -> CoachReplyOutput:
+        return CoachReplyOutput(
+            reply=(
+                "Here is what your interview record shows for this: "
+                f"{context_text[:400]}"
+            )
+        )
+
 
 class GeminiAIGateway(AIGateway):
     """Real Gemini-backed implementation of the AI Gateway.
@@ -154,6 +230,12 @@ class GeminiAIGateway(AIGateway):
         )
         self._evaluator_model = genai.GenerativeModel(
             model_name, system_instruction=evaluator_prompts.SYSTEM_PROMPT
+        )
+        self._recruiter_model = genai.GenerativeModel(
+            model_name, system_instruction=recruiter_prompts.SYSTEM_PROMPT
+        )
+        self._coach_model = genai.GenerativeModel(
+            model_name, system_instruction=coach_prompts.SYSTEM_PROMPT
         )
         self._fallback = StubAIGateway()
 
@@ -229,6 +311,62 @@ class GeminiAIGateway(AIGateway):
             reasoning="Evaluation unavailable; conservative default score applied.",
             fallback=True,
         )
+
+    def generate_recruiter_narrative(
+        self,
+        *,
+        overall_score: int,
+        readiness_level: str,
+        category_scores: dict[str, float | None],
+        strong_topics: list[str],
+        weak_topics: list[str],
+    ) -> RecruiterNarrativeOutput:
+        prompt = recruiter_prompts.build_user_prompt(
+            overall_score=overall_score,
+            readiness_level=readiness_level,
+            category_scores=category_scores,
+            strong_topics=strong_topics,
+            weak_topics=weak_topics,
+        )
+        try:
+            raw_text = self._generate(
+                self._recruiter_model,
+                prompt,
+                generation_config=genai.GenerationConfig(response_mime_type="application/json"),
+            )
+            parsed = json.loads(raw_text)
+            return RecruiterNarrativeOutput(**parsed)
+        except (json.JSONDecodeError, ValidationError, TypeError) as exc:
+            logger.warning("Gemini recruiter narrative failed validation: %s", exc)
+        except Exception as exc:  # noqa: BLE001 - network/timeout/etc. after retries
+            logger.warning("Gemini recruiter narrative call failed: %s", exc)
+
+        fallback_result = self._fallback.generate_recruiter_narrative(
+            overall_score=overall_score,
+            readiness_level=readiness_level,
+            category_scores=category_scores,
+            strong_topics=strong_topics,
+            weak_topics=weak_topics,
+        )
+        fallback_result.fallback = True
+        return fallback_result
+
+    def coach_reply(self, *, candidate_message: str, context_text: str) -> CoachReplyOutput:
+        prompt = coach_prompts.build_user_prompt(
+            candidate_message=candidate_message, context_text=context_text
+        )
+        try:
+            text = self._generate(self._coach_model, prompt).strip()
+            if not text:
+                raise ValueError("empty response from Gemini")
+            return CoachReplyOutput(reply=text)
+        except Exception as exc:  # noqa: BLE001 - any failure here must fall back, not crash
+            logger.warning("Gemini coach reply failed, falling back: %s", exc)
+            fallback_result = self._fallback.coach_reply(
+                candidate_message=candidate_message, context_text=context_text
+            )
+            fallback_result.fallback = True
+            return fallback_result
 
 
 def get_default_gateway() -> AIGateway:
