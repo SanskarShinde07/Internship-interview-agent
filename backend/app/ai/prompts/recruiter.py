@@ -22,6 +22,9 @@ different number.
 scored weak, from the data given. Do not invent topics not present in the data.
 - Be specific and constructive, not generic. Write like an experienced technical recruiter \
 giving honest, useful feedback to a student.
+- Use simple, professional language throughout, including in the improvements section. Be \
+direct about what to work on, but never harsh, blunt, or discouraging - frame gaps as normal, \
+addressable next steps, not failures.
 - The learning roadmap should only cover the given weak topics, one action-oriented item per \
 topic, each with a priority of HIGH, MEDIUM, or LOW.
 
