@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 
 import { ApiError, getAnalytics } from "@/lib/api-client";
 import type { InterviewAnalytics } from "@/lib/types";
+import { BackButton } from "@/components/ui/BackButton";
 import { Card } from "@/components/ui/Card";
 import { ScoreBar } from "@/components/analytics/ScoreBar";
 import { StatTile } from "@/components/analytics/StatTile";
@@ -44,7 +45,10 @@ export default function AnalyticsPage() {
 
   if (error) {
     return (
-      <main className="flex flex-1 items-center justify-center px-6 text-center">
+      <main className="relative flex flex-1 items-center justify-center px-6 text-center">
+        <div className="absolute top-6 left-6">
+          <BackButton />
+        </div>
         <p className="text-danger">{error}</p>
       </main>
     );
@@ -52,7 +56,10 @@ export default function AnalyticsPage() {
 
   if (!analytics) {
     return (
-      <main className="flex flex-1 items-center justify-center px-6">
+      <main className="relative flex flex-1 items-center justify-center px-6">
+        <div className="absolute top-6 left-6">
+          <BackButton />
+        </div>
         <p className="text-muted">Loading analytics...</p>
       </main>
     );
@@ -60,6 +67,7 @@ export default function AnalyticsPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-10">
+      <BackButton />
       <h1 className="text-2xl font-semibold">Interview Analytics</h1>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

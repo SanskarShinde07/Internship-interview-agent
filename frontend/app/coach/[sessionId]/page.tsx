@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 
 import { ApiError, getCoachMessages, postCoachMessage } from "@/lib/api-client";
 import type { CoachMessageItem } from "@/lib/types";
+import { BackButton } from "@/components/ui/BackButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { MessageBubble } from "@/components/coach/MessageBubble";
@@ -72,6 +73,7 @@ export default function CoachPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-6 py-10">
+      <BackButton />
       <div>
         <h1 className="text-2xl font-semibold">Post-Interview Coach</h1>
         <p className="text-sm text-muted">

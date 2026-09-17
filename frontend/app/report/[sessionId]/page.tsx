@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 
 import { ApiError, getReport } from "@/lib/api-client";
 import type { InterviewReport } from "@/lib/types";
+import { BackButton } from "@/components/ui/BackButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CategoryScores } from "@/components/report/CategoryScores";
@@ -49,7 +50,10 @@ export default function ReportPage() {
 
   if (error) {
     return (
-      <main className="flex flex-1 items-center justify-center px-6 text-center">
+      <main className="relative flex flex-1 items-center justify-center px-6 text-center">
+        <div className="absolute top-6 left-6">
+          <BackButton />
+        </div>
         <p className="text-danger">{error}</p>
       </main>
     );
@@ -57,7 +61,10 @@ export default function ReportPage() {
 
   if (!report) {
     return (
-      <main className="flex flex-1 items-center justify-center px-6">
+      <main className="relative flex flex-1 items-center justify-center px-6">
+        <div className="absolute top-6 left-6">
+          <BackButton />
+        </div>
         <p className="text-muted">Generating your report...</p>
       </main>
     );
@@ -112,7 +119,8 @@ export default function ReportPage() {
   ];
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-10">
+    <main className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-10">
+      <BackButton />
       <div>
         <h1 className="text-2xl font-semibold">Your Recruiter Report</h1>
         <p className="text-sm text-muted">

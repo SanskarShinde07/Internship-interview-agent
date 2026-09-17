@@ -42,7 +42,7 @@ export default function LandingPage() {
         </p>
         <Link
           href="/setup"
-          className="rounded-full bg-accent px-7 py-3 font-medium text-accent-foreground transition hover:bg-accent-hover"
+          className="rounded-full bg-accent px-7 py-3 font-medium text-accent-foreground shadow-lg shadow-accent/20 transition hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           Start Mock Interview
         </Link>
@@ -55,7 +55,8 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut", delay: 0.15 + index * 0.08 }}
-            className="rounded-2xl border border-border bg-surface p-6"
+            whileHover={{ y: -3 }}
+            className="rounded-2xl border border-border bg-surface p-6 shadow-lg shadow-black/20 transition-colors hover:border-accent/40"
           >
             <h2 className="mb-2 text-sm font-semibold">{feature.title}</h2>
             <p className="text-sm text-muted">{feature.description}</p>

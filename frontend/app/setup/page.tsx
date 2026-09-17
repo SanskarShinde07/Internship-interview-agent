@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { ApiError, createSession } from "@/lib/api-client";
+import { BackButton } from "@/components/ui/BackButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -36,7 +37,10 @@ export default function SetupPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
+    <main className="relative flex flex-1 flex-col items-center justify-center px-6 py-16">
+      <div className="absolute top-6 left-6">
+        <BackButton />
+      </div>
       <Card className="w-full max-w-md">
         <h1 className="mb-2 text-2xl font-semibold">Before we begin</h1>
         <p className="mb-6 text-sm text-muted">

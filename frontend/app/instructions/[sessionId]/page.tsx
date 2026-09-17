@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ApiError, startSession } from "@/lib/api-client";
 import { isSpeechRecognitionSupported } from "@/lib/voice/speech-recognition";
 import { isSpeechSynthesisSupported } from "@/lib/voice/speech-synthesis";
+import { BackButton } from "@/components/ui/BackButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 
@@ -75,7 +76,10 @@ export default function InstructionsPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
+    <main className="relative flex flex-1 flex-col items-center justify-center px-6 py-16">
+      <div className="absolute top-6 left-6">
+        <BackButton />
+      </div>
       <Card className="w-full max-w-xl">
         <h1 className="mb-2 text-2xl font-semibold">How this works</h1>
         <p className="mb-6 text-sm text-muted">
