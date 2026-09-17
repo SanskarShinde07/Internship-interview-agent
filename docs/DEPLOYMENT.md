@@ -2,15 +2,20 @@
 
 Follows the plan in `docs/BLUEPRINT.md` §21. This app has no CI/CD deploy
 step by design (see §21's reasoning on hosting choice) - deploying is a
-short manual click-through on Render (or Railway) and Vercel using the
-config files already committed in this repo.
+short manual click-through using the Blueprint file already committed at
+the repo root: `render.yaml`.
 
-## 1. Backend (Render)
+Both the backend and the frontend deploy to Render from that single file
+(one platform, one dashboard). Vercel is documented as an alternative for
+the frontend at the bottom, if you'd rather split them later.
+
+## 1. Deploy the Blueprint
 
 The Blueprint file lives at the **repo root**: `render.yaml`. Render's
-Blueprint flow auto-detects it there; you don't point it at `backend/`
-yourself - the `rootDir: backend` line inside `render.yaml` is what tells
-Render the actual service code lives in that subdirectory.
+Blueprint flow auto-detects it there. It defines two services:
+`intervue-ai-frontend` (Next.js, `rootDir: frontend`) and
+`intervue-ai-backend` (FastAPI, `rootDir: backend`) - each `rootDir` tells
+Render where that service's code lives in this monorepo.
 
 1. Sign in at https://dashboard.render.com (create a free account if you
    don't have one).
@@ -18,56 +23,54 @@ Render the actual service code lives in that subdirectory.
 3. Under "Connect a repository", authorize Render to access GitHub if
    prompted, then find and select
    `SanskarShinde07/Internship-interview-agent`.
-4. Render reads `render.yaml` from the repo root automatically and shows
-   a preview: one service, `intervue-ai-backend`. Give the Blueprint a
-   name (anything) and click **Apply** (or **Create New Resources**,
-   depending on Render's current UI wording).
-5. Render creates the service but the first deploy will fail (or sit
-   waiting) until you fill in the two secret env vars - these are marked
+4. Render reads `render.yaml` and shows a preview with both services.
+   Give the Blueprint a name (anything) and click **Apply** (or **Create
+   New Resources**, depending on Render's current UI wording).
+5. Render creates both services but the backend's first deploy will wait
+   until you fill in its two secret env vars - these are marked
    `sync: false` in `render.yaml` specifically so Render prompts you for
    them instead of expecting them committed to the repo:
-   - Open the new `intervue-ai-backend` service -> **Environment** tab.
+   - Open the `intervue-ai-backend` service -> **Environment** tab.
    - Set `GEMINI_API_KEY` to your Gemini API key
      (https://aistudio.google.com/apikey).
    - Set `ALLOWED_ORIGINS` to `["http://localhost:3000"]` for now - you'll
-     update this to your real Vercel URL in step 3 below once it exists.
-   - Save changes; Render will redeploy automatically.
-6. Watch the **Logs** tab. A healthy deploy runs `pip install -r
-   requirements.txt`, then `bash scripts/start_prod.sh`, which applies
-   Alembic migrations, seeds the question bank, and starts uvicorn bound
-   to Render's `$PORT`.
-7. Once live, note the backend URL shown at the top of the service page,
-   e.g. `https://intervue-ai-backend.onrender.com`. Confirm it works by
-   opening `https://<that-url>/api/v1/health` in a browser - it should
-   return `{"status":"ok"}`.
+     update this once the frontend's real URL exists (step 2 below).
+   - Save changes; Render redeploys automatically.
+6. Watch each service's **Logs** tab.
+   - Backend: `pip install -r requirements.txt`, then `bash
+     scripts/start_prod.sh` - applies Alembic migrations, seeds the
+     question bank, starts uvicorn bound to Render's `$PORT`.
+   - Frontend: `npm ci && npm run build`, then `npm run start -- -p
+     $PORT`.
+7. Once both are live, note their URLs from the top of each service page,
+   e.g. `https://intervue-ai-backend-xxxx.onrender.com` and
+   `https://intervue-ai-frontend-xxxx.onrender.com` (Render appends a
+   random suffix if the plain name is already taken by someone else).
+   Confirm the backend works by opening
+   `https://<backend-url>/api/v1/health` - it should return
+   `{"status":"ok"}`.
 
-Railway alternative: the same `backend/Procfile` (`web: bash
-scripts/start_prod.sh`) works on Railway - create a new project from this
-repo, set the service's root directory to `backend` in Railway's project
-settings, add the same env vars listed above (plus `ENVIRONMENT=production`,
-`GEMINI_MODEL`, etc. - see `.env.example`), and Railway's Nixpacks builder
-will pick up the Procfile.
+## 2. Point the frontend at the backend, and close the CORS loop
 
-## 2. Frontend (Vercel)
+`render.yaml` bakes a `NEXT_PUBLIC_API_BASE_URL` value into the frontend
+service - if your backend's actual URL differs from what's committed
+there (it will, once Render assigns its own random suffix), update it:
 
-1. Go to https://vercel.com/new and import this repository.
-2. Set the project's root directory to `frontend`.
-3. Add one environment variable: `NEXT_PUBLIC_API_BASE_URL` set to your
-   Render backend URL from step 1.5 above, with `/api/v1` appended, e.g.
-   `https://intervue-ai-backend.onrender.com/api/v1`.
-4. Deploy. Vercel auto-detects Next.js - no build command changes needed.
-5. Note the resulting frontend URL, e.g. `https://intervue-ai.vercel.app`.
+1. Open the `intervue-ai-frontend` service -> **Environment** tab.
+2. Set `NEXT_PUBLIC_API_BASE_URL` to your real backend URL with `/api/v1`
+   appended, e.g. `https://intervue-ai-backend-xxxx.onrender.com/api/v1`.
+3. Save - this triggers a rebuild (Next.js bakes `NEXT_PUBLIC_*` vars into
+   the client bundle at build time, so a redeploy is required, not just a
+   restart).
+4. Once the frontend's real URL is known, go back to the
+   `intervue-ai-backend` service -> **Environment** tab and update
+   `ALLOWED_ORIGINS` to a JSON array with that exact URL, e.g.
+   `["https://intervue-ai-frontend-xxxx.onrender.com"]`. Save to redeploy
+   the backend so CORS allows the live frontend.
 
-## 3. Close the loop
+## 3. Smoke test
 
-Go back to the Render dashboard and update `ALLOWED_ORIGINS` to the real
-Vercel URL from step 2.5 (a JSON array, e.g.
-`["https://intervue-ai.vercel.app"]`), then redeploy the backend service
-so CORS allows the live frontend.
-
-## 4. Smoke test
-
-Open the Vercel URL and run through one full interview end to end:
+Open the frontend URL and run through one full interview end to end:
 setup -> instructions -> interview (a few answers) -> report -> analytics
 -> coach. This exercises the full stack including the live Gemini API.
 
@@ -80,5 +83,28 @@ setup -> instructions -> interview (a few answers) -> report -> analytics
   the instance's ephemeral local disk and resets on every redeploy or
   restart. That's fine for a practice-interview demo; see BLUEPRINT.md
   §21 for the Postgres migration path if you need data to persist.
-- Rotating `GEMINI_API_KEY` or changing `ALLOWED_ORIGINS` only requires a
-  redeploy of the backend service, not the frontend.
+- Free-tier Render services spin down after inactivity and take ~30-60s
+  to wake on the next request - the first request after a quiet period
+  will feel slow. That's a free-tier limitation, not a bug.
+- Changing `GEMINI_API_KEY` or `ALLOWED_ORIGINS` only redeploys the
+  backend. Changing `NEXT_PUBLIC_API_BASE_URL` only redeploys the
+  frontend (but does require a full rebuild, unlike backend env vars).
+
+## Alternative: frontend on Vercel instead
+
+If you'd rather split the frontend onto Vercel (e.g. for its faster
+global CDN or preview-per-PR workflow):
+
+1. Go to https://vercel.com/new and import this repository.
+2. Set the project's root directory to `frontend`.
+3. Skip Vercel's "detected environment variables" (they're your root
+   `.env.example`, which is for the *backend* and irrelevant here). Add
+   one manually instead: `NEXT_PUBLIC_API_BASE_URL` set to your Render
+   backend URL with `/api/v1` appended.
+4. Deploy. Vercel auto-detects Next.js - no build command changes needed.
+5. Use the URL shown on the project's **Overview** page (not a
+   deployment-specific preview URL) once the deployment is tagged
+   **Production** in the Deployments tab.
+6. Update the backend's `ALLOWED_ORIGINS` on Render to that Vercel URL,
+   as in step 2 above, and remove/disable the `intervue-ai-frontend`
+   service in `render.yaml` if you don't want both running.

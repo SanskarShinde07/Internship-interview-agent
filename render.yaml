@@ -1,7 +1,7 @@
 # Render Blueprint (docs/BLUEPRINT.md §21). Deploy via
 # https://dashboard.render.com/blueprints -> point at this repo. Render
-# auto-detects this file at the repo root; `rootDir: backend` below tells
-# it where the actual service code lives in this monorepo.
+# auto-detects this file at the repo root; each service's `rootDir` below
+# tells it where that service's code lives in this monorepo.
 #
 # No persistent disk: Render's free tier doesn't support one. SQLite
 # lives on the free-tier instance's ephemeral local disk, so the DB
@@ -10,6 +10,20 @@
 # a paid plan and add a `disk:` block (see git history), or migrate to
 # Postgres (§21), if you need data to persist.
 services:
+  - type: web
+    name: intervue-ai-frontend
+    runtime: node
+    plan: free
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start -- -p $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: 22.11.0
+      # Baked into the client bundle at build time - update this and
+      # redeploy if the backend's URL ever changes.
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://intervue-ai-backend-yjez.onrender.com/api/v1
   - type: web
     name: intervue-ai-backend
     runtime: python
