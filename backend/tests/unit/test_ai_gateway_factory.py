@@ -14,7 +14,9 @@ def _clear_settings_cache():
 
 
 def test_factory_returns_stub_without_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    # Set (not delete) to "": a developer's local .env may carry a real key,
+    # and an env var always outranks .env in pydantic-settings' precedence.
+    monkeypatch.setenv("GEMINI_API_KEY", "")
     gateway = get_default_gateway()
     assert isinstance(gateway, StubAIGateway)
 
