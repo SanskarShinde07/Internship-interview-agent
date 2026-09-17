@@ -7,6 +7,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$SCRIPT_DIR"
 
+# backend/data/ is gitignored (holds the local SQLite file), so it never
+# exists on a fresh clone - sqlite3 fails to create the DB file inside a
+# directory that isn't there yet.
+mkdir -p data
+
 python -m alembic upgrade head
 python -m app.question_bank.loader
 
