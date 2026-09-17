@@ -27,14 +27,22 @@ Render where that service's code lives in this monorepo.
    Give the Blueprint a name (anything) and click **Apply** (or **Create
    New Resources**, depending on Render's current UI wording).
 5. Render creates both services but the backend's first deploy will wait
-   until you fill in its two secret env vars - these are marked
-   `sync: false` in `render.yaml` specifically so Render prompts you for
-   them instead of expecting them committed to the repo:
+   until you fill in its secret env vars - these are marked `sync: false`
+   in `render.yaml` specifically so Render prompts you for them instead of
+   expecting them committed to the repo:
    - Open the `intervue-ai-backend` service -> **Environment** tab.
    - Set `GEMINI_API_KEY` to your Gemini API key
      (https://aistudio.google.com/apikey).
    - Set `ALLOWED_ORIGINS` to `["http://localhost:3000"]` for now - you'll
      update this once the frontend's real URL exists (step 2 below).
+   - Set `JWT_SECRET_KEY` - this signs every login/password-reset token,
+     and the app **refuses to start** in production without one. Generate
+     one locally and paste it in:
+     `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
+   - Set `RESEND_API_KEY` if you want password-reset emails to actually
+     send (https://resend.com/api-keys, free tier). Leave it blank to
+     skip this - the reset link still works, it's just not emailed to the
+     candidate (see the Note below).
    - Save changes; Render redeploys automatically.
 6. Watch each service's **Logs** tab.
    - Backend: `pip install -r requirements.txt`, then `bash
@@ -86,9 +94,18 @@ setup -> instructions -> interview (a few answers) -> report -> analytics
 - Free-tier Render services spin down after inactivity and take ~30-60s
   to wake on the next request - the first request after a quiet period
   will feel slow. That's a free-tier limitation, not a bug.
-- Changing `GEMINI_API_KEY` or `ALLOWED_ORIGINS` only redeploys the
-  backend. Changing `NEXT_PUBLIC_API_BASE_URL` only redeploys the
-  frontend (but does require a full rebuild, unlike backend env vars).
+- Changing `GEMINI_API_KEY`, `ALLOWED_ORIGINS`, `JWT_SECRET_KEY`, or
+  `RESEND_API_KEY` only redeploys the backend. Changing
+  `NEXT_PUBLIC_API_BASE_URL` only redeploys the frontend (but does
+  require a full rebuild, unlike backend env vars).
+- Without `RESEND_API_KEY` set, password-reset links are never emailed -
+  they're only logged (`RESEND_API_KEY not set - skipping email; reset
+  link: ...`) at WARNING level in the backend's Logs tab. Fine for
+  testing the flow yourself; set the key for real candidates to receive
+  the email.
+- `render.yaml` bakes `FRONTEND_URL` in as the URL that gets embedded in
+  password-reset links. Update it (backend env vars) if your frontend's
+  real URL differs from what's committed there.
 
 ## Alternative: frontend on Vercel instead
 

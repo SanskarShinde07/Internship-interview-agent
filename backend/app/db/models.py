@@ -106,14 +106,35 @@ class MessageRole(str, enum.Enum):
 # --- Tables ---------------------------------------------------------------------
 
 
+class User(Base):
+    """A registered account (docs/BLUEPRINT.md §21 follow-up: optional auth
+    so a candidate can see their own interview history across sessions).
+    Entirely separate from Candidate: a session can still be fully
+    anonymous, or its Candidate row can be linked to a User when the
+    candidate was signed in at the time they started it.
+    """
+
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=_uuid)
+    email: Mapped[str] = mapped_column(String(320), unique=True, index=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
+    display_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    candidates: Mapped[list["Candidate"]] = relationship(back_populates="user")
+
+
 class Candidate(Base):
     __tablename__ = "candidates"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=_uuid)
     display_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
     email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
+    user: Mapped[User | None] = relationship(back_populates="candidates")
     sessions: Mapped[list["InterviewSession"]] = relationship(back_populates="candidate")
 
 

@@ -54,3 +54,24 @@ services:
         value: "40"
       - key: RATE_LIMIT_PER_MINUTE
         value: "20"
+      # Auth - JWT_SECRET_KEY has no safe default; the app refuses to
+      # start in production without one. Generate one with:
+      #   python -c "import secrets; print(secrets.token_urlsafe(48))"
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_MINUTES
+        value: "10080"
+      - key: PASSWORD_RESET_TOKEN_EXPIRE_MINUTES
+        value: "30"
+      - key: AUTH_RATE_LIMIT_PER_MINUTE
+        value: "10"
+      # Optional - leave unset and password-reset links are logged
+      # instead of emailed (see app/core/email.py).
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: InterVue AI <onboarding@resend.dev>
+      - key: FRONTEND_URL
+        value: https://internship-interview-agent.onrender.com

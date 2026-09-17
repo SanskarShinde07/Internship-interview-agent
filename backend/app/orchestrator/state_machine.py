@@ -78,11 +78,15 @@ def _get_session(db: Session, session_id: uuid.UUID) -> InterviewSession:
 
 
 def create_session(
-    db: Session, *, display_name: str | None = None, email: str | None = None
+    db: Session,
+    *,
+    display_name: str | None = None,
+    email: str | None = None,
+    user_id: uuid.UUID | None = None,
 ) -> InterviewSession:
     candidate_id = None
-    if display_name or email:
-        candidate = Candidate(display_name=display_name, email=email)
+    if display_name or email or user_id:
+        candidate = Candidate(display_name=display_name, email=email, user_id=user_id)
         db.add(candidate)
         db.flush()
         candidate_id = candidate.id

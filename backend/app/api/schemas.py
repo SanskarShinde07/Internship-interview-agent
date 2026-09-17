@@ -5,11 +5,64 @@ storage schema, and the two are free to diverge as either evolves.
 """
 
 import uuid
+from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 from app.db.models import SessionState
+
+
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=72)
+    display_name: str | None = Field(default=None, max_length=200)
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=1, max_length=72)
+
+
+class UserResponse(BaseModel):
+    id: uuid.UUID
+    email: str
+    display_name: str | None
+
+
+class AuthResponse(BaseModel):
+    access_token: str
+    user: UserResponse
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8, max_length=72)
+
+
+class ResetPasswordResponse(BaseModel):
+    message: str
+
+
+class SessionHistoryItem(BaseModel):
+    session_id: uuid.UUID
+    state: SessionState
+    started_at: datetime | None
+    completed_at: datetime | None
+    overall_score: int | None
+    readiness_level: str | None
+
+
+class SessionHistoryResponse(BaseModel):
+    sessions: list[SessionHistoryItem]
 
 
 class CreateSessionRequest(BaseModel):

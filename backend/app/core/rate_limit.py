@@ -53,3 +53,13 @@ def enforce_rate_limit(request: Request, session_id: str) -> None:
     client_ip = request.client.host if request.client else "unknown"
     key = f"{client_ip}:{session_id}"
     _limiter.check(key, settings.rate_limit_per_minute)
+
+
+def enforce_auth_rate_limit(request: Request) -> None:
+    """Tighter, IP-only limit for register/login/forgot/reset - these have
+    no session_id to key on, and are exactly the endpoints worth throttling
+    against credential-stuffing/brute-force attempts."""
+    settings = get_settings()
+    client_ip = request.client.host if request.client else "unknown"
+    key = f"auth:{client_ip}"
+    _limiter.check(key, settings.auth_rate_limit_per_minute)

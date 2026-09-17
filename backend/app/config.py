@@ -18,6 +18,18 @@ class Settings(BaseSettings):
     max_questions_per_session: int = 40
     rate_limit_per_minute: int = 20
 
+    # Auth (docs/BLUEPRINT.md §21 follow-up). jwt_secret_key has no safe
+    # default - app.main refuses to start with an empty one in production.
+    jwt_secret_key: str = ""
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60 * 24 * 7  # 7 days
+    password_reset_token_expire_minutes: int = 30
+    auth_rate_limit_per_minute: int = 10
+
+    resend_api_key: str = ""
+    email_from: str = "InterVue AI <onboarding@resend.dev>"
+    frontend_url: str = "http://localhost:3000"
+
 
 @lru_cache
 def get_settings() -> Settings:

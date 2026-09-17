@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
 
+import { useAuth } from "@/lib/auth-context";
+
 export function Header() {
+  const { user, logout } = useAuth();
+
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
@@ -10,9 +16,43 @@ export function Header() {
           </span>
           <span className="text-sm font-semibold tracking-tight">InterVue AI</span>
         </Link>
-        <span className="hidden text-xs text-muted sm:inline">
-          ML Engineer Internship Interview Practice
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="hidden text-xs text-muted sm:inline">
+            ML Engineer Internship Interview Practice
+          </span>
+          {user ? (
+            <div className="flex items-center gap-3 text-sm">
+              <Link
+                href="/history"
+                className="text-muted underline-offset-2 hover:text-foreground hover:underline"
+              >
+                My Interviews
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className="text-muted underline-offset-2 hover:text-foreground hover:underline"
+              >
+                Log out
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 text-sm">
+              <Link
+                href="/login"
+                className="text-muted underline-offset-2 hover:text-foreground hover:underline"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-accent-foreground transition hover:bg-accent-hover"
+              >
+                Sign up
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

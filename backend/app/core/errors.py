@@ -7,6 +7,7 @@ propagate instead of each one hand-rolling try/except HTTPException.
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.core.auth_errors import EmailAlreadyRegisteredError, InvalidCredentialsError
 from app.core.rate_limit import RateLimitExceeded
 from app.orchestrator.state_machine import (
     InvalidTransitionError,
@@ -44,6 +45,18 @@ async def _rate_limit_handler(_request: Request, exc: RateLimitExceeded) -> JSON
     return _error_response(429, "rate_limited", str(exc))
 
 
+async def _email_already_registered_handler(
+    _request: Request, exc: EmailAlreadyRegisteredError
+) -> JSONResponse:
+    return _error_response(409, "email_already_registered", str(exc))
+
+
+async def _invalid_credentials_handler(
+    _request: Request, exc: InvalidCredentialsError
+) -> JSONResponse:
+    return _error_response(401, "invalid_credentials", str(exc))
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     # Registered most-specific first; Starlette dispatches on the exception's
     # exact type against this table, so order here doesn't actually matter,
@@ -53,3 +66,5 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(QuestionMismatchError, _question_mismatch_handler)
     app.add_exception_handler(OrchestratorError, _orchestrator_error_handler)
     app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
+    app.add_exception_handler(EmailAlreadyRegisteredError, _email_already_registered_handler)
+    app.add_exception_handler(InvalidCredentialsError, _invalid_credentials_handler)

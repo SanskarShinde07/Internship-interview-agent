@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.ai.gateway import AIGateway
-from app.api.deps import get_db, get_gateway
+from app.api.deps import get_current_user_optional, get_db, get_gateway
 from app.api.schemas import (
     CreateSessionRequest,
     EndSessionRequest,
@@ -19,7 +19,7 @@ from app.api.schemas import (
     SubmitAnswerRequest,
 )
 from app.core.rate_limit import enforce_rate_limit
-from app.db.models import InterviewQuestion, InterviewSession
+from app.db.models import InterviewQuestion, InterviewSession, User
 from app.orchestrator import state_machine
 from app.orchestrator.round_controller import expected_total_questions
 from app.orchestrator.state_machine import InvalidTransitionError, SessionNotFoundError
@@ -38,12 +38,15 @@ def _to_question_response(question: InterviewQuestion) -> QuestionResponse:
 
 @router.post("", response_model=SessionSummaryResponse, status_code=201)
 def create_session(
-    payload: CreateSessionRequest | None = None, db: Session = Depends(get_db)
+    payload: CreateSessionRequest | None = None,
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> SessionSummaryResponse:
     session = state_machine.create_session(
         db,
         display_name=payload.display_name if payload else None,
         email=payload.email if payload else None,
+        user_id=current_user.id if current_user else None,
     )
     return SessionSummaryResponse(session_id=session.id, state=session.state)
 

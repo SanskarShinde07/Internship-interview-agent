@@ -1,11 +1,13 @@
 import type {
   ApiErrorBody,
+  AuthResult,
   CoachMessageItem,
   CoachMessageResult,
   InterviewAnalytics,
   InterviewReport,
   NextStepResult,
   Question,
+  SessionHistoryItem,
   SessionProgress,
   SessionSummary,
   StartSessionResult,
@@ -24,11 +26,22 @@ export class ApiError extends Error {
   }
 }
 
+// Kept as a plain in-memory value (not read from localStorage per-request)
+// so this module has no framework dependency - AuthContext is the single
+// place that reads/writes localStorage and calls setAuthToken to keep this
+// in sync with it.
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...init?.headers,
     },
   });
@@ -122,4 +135,38 @@ export function getCoachMessages(
   sessionId: string,
 ): Promise<{ messages: CoachMessageItem[] }> {
   return request(`/sessions/${sessionId}/coach/messages`);
+}
+
+export function registerUser(input: {
+  email: string;
+  password: string;
+  display_name?: string;
+}): Promise<AuthResult> {
+  return request("/auth/register", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function loginUser(input: { email: string; password: string }): Promise<AuthResult> {
+  return request("/auth/login", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function getMe(): Promise<{ id: string; email: string; display_name: string | null }> {
+  return request("/auth/me");
+}
+
+export function forgotPassword(email: string): Promise<{ message: string }> {
+  return request("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) });
+}
+
+export function resetPassword(
+  token: string,
+  newPassword: string,
+): Promise<{ message: string }> {
+  return request("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, new_password: newPassword }),
+  });
+}
+
+export function getMyInterviews(): Promise<{ sessions: SessionHistoryItem[] }> {
+  return request("/auth/me/interviews");
 }

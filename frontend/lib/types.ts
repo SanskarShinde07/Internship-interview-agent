@@ -113,3 +113,23 @@ export interface ApiErrorBody {
   error_code: string;
   message: string;
 }
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  display_name: string | null;
+}
+
+export interface AuthResult {
+  access_token: string;
+  user: AuthUser;
+}
+
+export interface SessionHistoryItem {
+  session_id: string;
+  state: InterviewState;
+  started_at: string | null;
+  completed_at: string | null;
+  overall_score: number | null;
+  readiness_level: ReadinessLevel | null;
+}

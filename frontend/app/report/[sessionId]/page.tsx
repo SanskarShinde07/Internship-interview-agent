@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 import { ApiError, getReport } from "@/lib/api-client";
+import { exportElementToPdf } from "@/lib/export-pdf";
 import type { InterviewReport } from "@/lib/types";
 import { BackButton } from "@/components/ui/BackButton";
 import { Button } from "@/components/ui/Button";
@@ -32,6 +33,22 @@ export default function ReportPage() {
   const params = useParams<{ sessionId: string }>();
   const [report, setReport] = useState<InterviewReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const printableRef = useRef<HTMLDivElement>(null);
+
+  async function handleDownloadPdf() {
+    if (!printableRef.current) return;
+    setIsExportingPdf(true);
+    setExportError(null);
+    try {
+      await exportElementToPdf(printableRef.current, `intervue-ai-report-${params.sessionId}.pdf`);
+    } catch {
+      setExportError("Could not generate the PDF. Please try again.");
+    } finally {
+      setIsExportingPdf(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -121,26 +138,33 @@ export default function ReportPage() {
   return (
     <main className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-10">
       <BackButton />
-      <div>
-        <h1 className="text-2xl font-semibold">Your Recruiter Report</h1>
-        <p className="text-sm text-muted">
-          Scores below are computed deterministically from your interview. The summary and
-          roadmap are AI-generated based on those scores.
-        </p>
+      <div ref={printableRef} className="flex flex-col gap-6 bg-background">
+        <div>
+          <h1 className="text-2xl font-semibold">Your Recruiter Report</h1>
+          <p className="text-sm text-muted">
+            Scores below are computed deterministically from your interview. The summary and
+            roadmap are AI-generated based on those scores.
+          </p>
+        </div>
+
+        {sections.map((section, index) => (
+          <motion.div
+            key={section.key}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: "easeOut", delay: index * 0.06 }}
+          >
+            {section}
+          </motion.div>
+        ))}
       </div>
 
-      {sections.map((section, index) => (
-        <motion.div
-          key={section.key}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: "easeOut", delay: index * 0.06 }}
-        >
-          {section}
-        </motion.div>
-      ))}
+      {exportError && <p className="text-center text-sm text-danger">{exportError}</p>}
 
-      <div className="flex justify-center gap-4 pb-4">
+      <div className="flex flex-wrap justify-center gap-4 pb-4">
+        <Button variant="secondary" onClick={handleDownloadPdf} disabled={isExportingPdf}>
+          {isExportingPdf ? "Preparing PDF..." : "Download PDF"}
+        </Button>
         <Link href={`/analytics/${params.sessionId}`}>
           <Button variant="secondary">View Analytics</Button>
         </Link>
