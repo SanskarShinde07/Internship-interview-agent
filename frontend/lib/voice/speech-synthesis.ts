@@ -46,12 +46,18 @@ export class BrowserSpeechSynthesisAdapter implements SpeechSynthesisAdapter {
   constructor() {
     if (!this.isSupported()) return;
     this.loadVoice();
-    // Chrome loads its voice list asynchronously; the first call to
-    // getVoices() right after page load can return an empty array.
+    // Chrome loads its voice list asynchronously - and often in more than
+    // one stage, firing this event again as further voices become
+    // available. loadVoice() only acts while this.voice is still unset,
+    // so the choice locks in on the first non-empty list and never
+    // changes again - otherwise a later firing mid-interview could
+    // silently re-pick a different (and possibly male) voice than the
+    // one already used for earlier questions.
     window.speechSynthesis.onvoiceschanged = () => this.loadVoice();
   }
 
   private loadVoice(): void {
+    if (this.voice) return;
     const voices = window.speechSynthesis.getVoices();
     if (voices.length > 0) {
       this.voice = pickFemaleEnglishVoice(voices);
