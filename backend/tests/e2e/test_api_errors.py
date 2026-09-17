@@ -39,6 +39,31 @@ def test_answer_with_empty_transcript_returns_422(api_context) -> None:
     assert resp.status_code == 422
 
 
+def test_answer_with_oversized_transcript_returns_422(api_context) -> None:
+    client = api_context.client
+    session_id = client.post("/api/v1/sessions", json={}).json()["session_id"]
+    question = client.post(f"/api/v1/sessions/{session_id}/start").json()["current_question"]
+
+    resp = client.post(
+        f"/api/v1/sessions/{session_id}/answer",
+        json={"question_id": question["question_id"], "transcript_text": "x" * 4001},
+    )
+    assert resp.status_code == 422
+
+
+def test_coach_message_with_oversized_text_returns_422(api_context) -> None:
+    client = api_context.client
+    session_id = client.post("/api/v1/sessions", json={}).json()["session_id"]
+    client.post(f"/api/v1/sessions/{session_id}/start")
+    client.post(f"/api/v1/sessions/{session_id}/end")
+
+    resp = client.post(
+        f"/api/v1/sessions/{session_id}/coach/messages",
+        json={"message": "x" * 2001},
+    )
+    assert resp.status_code == 422
+
+
 def test_answer_with_wrong_question_id_returns_400(api_context) -> None:
     client = api_context.client
     session_id = client.post("/api/v1/sessions", json={}).json()["session_id"]

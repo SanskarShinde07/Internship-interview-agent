@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.ai.gateway import StubAIGateway
 from app.api.deps import get_db, get_gateway
+from app.core.rate_limit import enforce_rate_limit
 from app.db.models import Base
 from app.main import app
 from app.question_bank.loader import seed_question_bank
@@ -40,6 +41,10 @@ def api_context(tmp_path) -> Generator[ApiTestContext, None, None]:
     stub_gateway = StubAIGateway()
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_gateway] = lambda: stub_gateway
+    # These tests drive a full interview's worth of requests back-to-back,
+    # which isn't what the rate limiter is meant to catch - rate limiting
+    # itself gets its own dedicated test in test_rate_limiting.py.
+    app.dependency_overrides[enforce_rate_limit] = lambda: None
 
     with TestClient(app) as test_client:
         yield ApiTestContext(client=test_client, session_factory=test_session_factory)

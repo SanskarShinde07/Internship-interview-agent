@@ -13,8 +13,8 @@ from app.db.models import SessionState
 
 
 class CreateSessionRequest(BaseModel):
-    display_name: str | None = None
-    email: str | None = None
+    display_name: str | None = Field(default=None, max_length=200)
+    email: str | None = Field(default=None, max_length=320)
 
 
 class SessionSummaryResponse(BaseModel):
@@ -43,8 +43,8 @@ class SessionProgressResponse(BaseModel):
 
 class SubmitAnswerRequest(BaseModel):
     question_id: uuid.UUID
-    transcript_text: str = Field(min_length=1)
-    duration_seconds: float | None = None
+    transcript_text: str = Field(min_length=1, max_length=4000)
+    duration_seconds: float | None = Field(default=None, ge=0)
 
 
 class NextStepResponse(BaseModel):
@@ -57,7 +57,7 @@ class RepeatQuestionResponse(BaseModel):
 
 
 class EndSessionRequest(BaseModel):
-    reason: str | None = None
+    reason: str | None = Field(default=None, max_length=200)
 
 
 class EndSessionResponse(BaseModel):
@@ -94,7 +94,7 @@ class AnalyticsResponse(BaseModel):
 
 
 class CoachMessageRequest(BaseModel):
-    message: str = Field(min_length=1)
+    message: str = Field(min_length=1, max_length=2000)
     referenced_question_id: uuid.UUID | None = None
 
 

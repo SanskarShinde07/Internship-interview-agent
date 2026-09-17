@@ -18,6 +18,7 @@ from app.api.schemas import (
     StartSessionResponse,
     SubmitAnswerRequest,
 )
+from app.core.rate_limit import enforce_rate_limit
 from app.db.models import InterviewQuestion, InterviewSession
 from app.orchestrator import state_machine
 from app.orchestrator.round_controller import expected_total_questions
@@ -96,6 +97,7 @@ def submit_answer(
     payload: SubmitAnswerRequest,
     db: Session = Depends(get_db),
     gateway: AIGateway = Depends(get_gateway),
+    _rate_limit: None = Depends(enforce_rate_limit),
 ) -> NextStepResponse:
     result = state_machine.submit_answer(
         db,
@@ -129,3 +131,13 @@ def end_session(
 ) -> EndSessionResponse:
     session = state_machine.end_session(db, session_id, payload.reason if payload else None)
     return EndSessionResponse(state=session.state)
+
+
+@router.delete("/{session_id}", status_code=204)
+def delete_session(session_id: uuid.UUID, db: Session = Depends(get_db)) -> None:
+    """Permanently deletes this session and all data derived from it
+    (docs/BLUEPRINT.md §17). Irreversible - there is no confirmation step
+    at this layer; the frontend is responsible for confirming with the
+    candidate before calling this.
+    """
+    state_machine.delete_session(db, session_id)

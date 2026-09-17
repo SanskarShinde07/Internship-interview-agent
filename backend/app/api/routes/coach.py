@@ -12,6 +12,7 @@ from app.api.schemas import (
     CoachMessagesListResponse,
 )
 from app.coach.service import ask_coach, list_messages
+from app.core.rate_limit import enforce_rate_limit
 from app.db.models import InterviewSession, SessionState
 from app.orchestrator.state_machine import InvalidTransitionError, SessionNotFoundError
 
@@ -34,6 +35,7 @@ def post_coach_message(
     payload: CoachMessageRequest,
     db: Session = Depends(get_db),
     gateway: AIGateway = Depends(get_gateway),
+    _rate_limit: None = Depends(enforce_rate_limit),
 ) -> CoachMessageResponse:
     _require_finished_session(db, session_id)
     reply, conversation_id = ask_coach(

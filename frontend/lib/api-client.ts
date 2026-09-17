@@ -93,6 +93,12 @@ export function endSession(sessionId: string, reason?: string): Promise<{ state:
   });
 }
 
+/** Permanently deletes a session and all data derived from it (docs/BLUEPRINT.md §17).
+ * Irreversible - callers should confirm with the candidate before calling this. */
+export function deleteSession(sessionId: string): Promise<void> {
+  return request(`/sessions/${sessionId}`, { method: "DELETE" });
+}
+
 export function getReport(sessionId: string): Promise<InterviewReport> {
   return request(`/sessions/${sessionId}/report`);
 }

@@ -11,7 +11,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.adaptive.completion_rules import is_round_complete, session_should_terminate_for_limits
@@ -25,8 +25,11 @@ from app.db.models import (
     BankRound,
     Candidate,
     CandidateAnswer,
+    CoachConversation,
+    CoachMessage,
     DifficultyLog,
     InterviewQuestion,
+    InterviewReport,
     InterviewSession,
     QuestionRound,
     QuestionType,
@@ -237,6 +240,41 @@ def end_session(
     session.completed_at = _utcnow()
     db.commit()
     return session
+
+
+def delete_session(db: Session, session_id: uuid.UUID) -> None:
+    """Permanently deletes a session and everything derived from it
+    (docs/BLUEPRINT.md §17: candidates can request their data be deleted).
+    Also removes the session's exclusively-owned candidate row, if any -
+    each session creates its own Candidate rather than reusing one, so
+    there's nothing else that could still need it.
+    """
+    session = _get_session(db, session_id)
+
+    question_ids = select(InterviewQuestion.id).where(InterviewQuestion.session_id == session_id)
+    answer_ids = select(CandidateAnswer.id).where(
+        CandidateAnswer.interview_question_id.in_(question_ids)
+    )
+    conversation_ids = select(CoachConversation.id).where(
+        CoachConversation.session_id == session_id
+    )
+
+    db.execute(delete(CoachMessage).where(CoachMessage.conversation_id.in_(conversation_ids)))
+    db.execute(delete(CoachConversation).where(CoachConversation.session_id == session_id))
+    db.execute(delete(AnswerEvaluation).where(AnswerEvaluation.candidate_answer_id.in_(answer_ids)))
+    db.execute(delete(CandidateAnswer).where(CandidateAnswer.interview_question_id.in_(question_ids)))
+    db.execute(delete(InterviewQuestion).where(InterviewQuestion.session_id == session_id))
+    db.execute(delete(DifficultyLog).where(DifficultyLog.session_id == session_id))
+    db.execute(delete(InterviewReport).where(InterviewReport.session_id == session_id))
+
+    candidate_id = session.candidate_id
+    db.delete(session)
+    if candidate_id is not None:
+        candidate = db.get(Candidate, candidate_id)
+        if candidate is not None:
+            db.delete(candidate)
+
+    db.commit()
 
 
 def _advance(

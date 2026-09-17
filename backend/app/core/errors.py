@@ -7,6 +7,7 @@ propagate instead of each one hand-rolling try/except HTTPException.
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.core.rate_limit import RateLimitExceeded
 from app.orchestrator.state_machine import (
     InvalidTransitionError,
     OrchestratorError,
@@ -39,6 +40,10 @@ async def _orchestrator_error_handler(_request: Request, exc: OrchestratorError)
     return _error_response(500, "orchestrator_error", str(exc))
 
 
+async def _rate_limit_handler(_request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    return _error_response(429, "rate_limited", str(exc))
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     # Registered most-specific first; Starlette dispatches on the exception's
     # exact type against this table, so order here doesn't actually matter,
@@ -47,3 +52,4 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(InvalidTransitionError, _invalid_transition_handler)
     app.add_exception_handler(QuestionMismatchError, _question_mismatch_handler)
     app.add_exception_handler(OrchestratorError, _orchestrator_error_handler)
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
