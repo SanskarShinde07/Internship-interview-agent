@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+import { useAuth } from "@/lib/auth-context";
+
 const FEATURES = [
   {
     title: "Adaptive difficulty",
@@ -22,6 +24,8 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
+  const { user } = useAuth();
+
   return (
     <main className="flex flex-1 flex-col items-center px-6">
       <motion.section
@@ -41,11 +45,20 @@ export default function LandingPage() {
           behavioral rounds — with difficulty that adjusts as you go.
         </p>
         <Link
-          href="/setup"
+          href={user ? "/setup" : "/login"}
           className="rounded-full bg-accent px-7 py-3 font-medium text-accent-foreground shadow-lg shadow-accent/20 transition hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           Start Mock Interview
         </Link>
+        {!user && (
+          <p className="text-xs text-muted">
+            Sign in required —{" "}
+            <Link href="/register" className="text-accent hover:underline">
+              create a free account
+            </Link>{" "}
+            to get started.
+          </p>
+        )}
       </motion.section>
 
       <section className="grid w-full max-w-4xl gap-4 pb-24 sm:grid-cols-3">

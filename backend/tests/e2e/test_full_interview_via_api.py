@@ -27,7 +27,11 @@ def test_full_interview_via_http_reaches_completed_report_and_coach(api_context)
     client = api_context.client
     lookup_db = api_context.session_factory()
 
-    create_resp = client.post("/api/v1/sessions", json={"display_name": "Ada Lovelace"})
+    create_resp = client.post(
+        "/api/v1/sessions",
+        json={"display_name": "Ada Lovelace"},
+        headers=api_context.auth_headers(),
+    )
     assert create_resp.status_code == 201
     session_id = create_resp.json()["session_id"]
     assert create_resp.json()["state"] == "CREATED"

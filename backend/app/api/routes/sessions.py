@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.ai.gateway import AIGateway
-from app.api.deps import get_current_user_optional, get_db, get_gateway
+from app.api.deps import get_current_user, get_db, get_gateway
 from app.api.schemas import (
     CreateSessionRequest,
     EndSessionRequest,
@@ -40,13 +40,13 @@ def _to_question_response(question: InterviewQuestion) -> QuestionResponse:
 def create_session(
     payload: CreateSessionRequest | None = None,
     db: Session = Depends(get_db),
-    current_user: User | None = Depends(get_current_user_optional),
+    current_user: User = Depends(get_current_user),
 ) -> SessionSummaryResponse:
     session = state_machine.create_session(
         db,
         display_name=payload.display_name if payload else None,
         email=payload.email if payload else None,
-        user_id=current_user.id if current_user else None,
+        user_id=current_user.id,
     )
     return SessionSummaryResponse(session_id=session.id, state=session.state)
 

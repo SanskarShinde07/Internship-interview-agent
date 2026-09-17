@@ -21,7 +21,9 @@ def test_delete_session_removes_session_and_all_derived_rows(api_context) -> Non
     db = api_context.session_factory()
 
     create_resp = client.post(
-        "/api/v1/sessions", json={"display_name": "Delete Me", "email": "delete@example.com"}
+        "/api/v1/sessions",
+        json={"display_name": "Delete Me", "email": "delete@example.com"},
+        headers=api_context.auth_headers(),
     )
     session_id = create_resp.json()["session_id"]
     session_uuid = uuid.UUID(session_id)

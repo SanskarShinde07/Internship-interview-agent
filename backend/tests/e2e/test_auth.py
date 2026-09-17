@@ -181,17 +181,22 @@ def test_session_created_while_authenticated_appears_in_my_interviews(
     assert session_id in session_ids
 
 
-def test_anonymous_session_does_not_appear_in_any_users_history(
+def test_creating_a_session_without_being_signed_in_is_rejected(
     api_context: ApiTestContext,
 ) -> None:
-    api_context.client.post("/api/v1/sessions", json={})
+    response = api_context.client.post("/api/v1/sessions", json={})
+    assert response.status_code == 401
 
-    register_response = _register(api_context.client)
-    token = register_response.json()["access_token"]
-    history_response = api_context.client.get(
-        "/api/v1/auth/me/interviews", headers={"Authorization": f"Bearer {token}"}
+
+def test_creating_a_session_with_a_garbage_token_is_rejected(
+    api_context: ApiTestContext,
+) -> None:
+    response = api_context.client.post(
+        "/api/v1/sessions",
+        json={},
+        headers={"Authorization": "Bearer not-a-real-token"},
     )
-    assert history_response.json()["sessions"] == []
+    assert response.status_code == 401
 
 
 def test_two_users_only_see_their_own_sessions(api_context: ApiTestContext) -> None:

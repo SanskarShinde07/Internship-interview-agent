@@ -18,6 +18,10 @@ export ALLOWED_ORIGINS="${E2E_ALLOWED_ORIGINS:-[\"http://localhost:3100\",\"http
 # a script instead of a human; rate limiting itself has its own dedicated
 # backend tests, so it's not what this suite is checking.
 export RATE_LIMIT_PER_MINUTE="${E2E_RATE_LIMIT_PER_MINUTE:-1000}"
+export AUTH_RATE_LIMIT_PER_MINUTE="${E2E_AUTH_RATE_LIMIT_PER_MINUTE:-1000}"
+# Only signs tokens for this throwaway instance's lifetime - starting an
+# interview now requires an account, so the suite registers one.
+export JWT_SECRET_KEY="e2e-suite-only-not-for-production"
 
 if [ -f ".venv/bin/activate" ]; then
   # shellcheck disable=SC1091

@@ -15,7 +15,10 @@ def test_answer_endpoint_rate_limits_after_threshold(api_context) -> None:
     get_rate_limiter().reset()
     try:
         client = api_context.client
-        session_id = client.post("/api/v1/sessions", json={}).json()["session_id"]
+        headers = api_context.auth_headers()
+        session_id = client.post("/api/v1/sessions", json={}, headers=headers).json()[
+            "session_id"
+        ]
         question = client.post(f"/api/v1/sessions/{session_id}/start").json()[
             "current_question"
         ]
@@ -45,8 +48,11 @@ def test_rate_limit_is_scoped_per_session(api_context) -> None:
     try:
         client = api_context.client
         limit = get_settings().rate_limit_per_minute
+        headers = api_context.auth_headers()
 
-        session_a = client.post("/api/v1/sessions", json={}).json()["session_id"]
+        session_a = client.post("/api/v1/sessions", json={}, headers=headers).json()[
+            "session_id"
+        ]
         question_a = client.post(f"/api/v1/sessions/{session_a}/start").json()[
             "current_question"
         ]
@@ -58,7 +64,9 @@ def test_rate_limit_is_scoped_per_session(api_context) -> None:
 
         # A different session (even from the same test client / IP) should
         # not be affected by session_a's exhausted quota.
-        session_b = client.post("/api/v1/sessions", json={}).json()["session_id"]
+        session_b = client.post("/api/v1/sessions", json={}, headers=headers).json()[
+            "session_id"
+        ]
         question_b = client.post(f"/api/v1/sessions/{session_b}/start").json()[
             "current_question"
         ]

@@ -22,6 +22,18 @@ test("full interview journey: landing through coach", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: /practice interviews that actually adapt to you/i }),
   ).toBeVisible();
+
+  // Starting an interview requires an account - the landing page's CTA
+  // sends a signed-out visitor to /login instead of straight to /setup.
+  await page.getByRole("link", { name: /start mock interview/i }).click();
+  await page.waitForURL("**/login");
+  await page.getByRole("main").getByRole("link", { name: /sign up/i }).click();
+  await page.waitForURL("**/register");
+  await page.getByPlaceholder("you@example.com").fill(`e2e-${Date.now()}@example.com`);
+  await page.getByPlaceholder("At least 8 characters").fill("e2e-test-password-123");
+  await page.getByPlaceholder("••••••••").fill("e2e-test-password-123");
+  await page.getByRole("button", { name: /sign up/i }).click();
+  await page.waitForURL("**/history");
   await page.getByRole("link", { name: /start mock interview/i }).click();
 
   await page.waitForURL("**/setup");

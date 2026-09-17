@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-import Link from "next/link";
 
 import { ApiError, createSession } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
@@ -14,11 +12,20 @@ import { Input } from "@/components/ui/Input";
 
 export default function SetupPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Starting an interview requires an account - a direct visit here
+    // while signed out (not just the landing page's CTA) gets sent to
+    // sign in first.
+    if (!isAuthLoading && !user) {
+      router.replace("/login");
+    }
+  }, [user, isAuthLoading, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,6 +47,14 @@ export default function SetupPage() {
     }
   }
 
+  if (isAuthLoading || !user) {
+    return (
+      <main className="flex flex-1 items-center justify-center px-6">
+        <p className="text-muted">Loading...</p>
+      </main>
+    );
+  }
+
   return (
     <main className="relative flex flex-1 flex-col items-center justify-center px-6 py-16">
       <div className="absolute top-6 left-6">
@@ -48,20 +63,8 @@ export default function SetupPage() {
       <Card className="w-full max-w-md">
         <h1 className="mb-2 text-2xl font-semibold">Before we begin</h1>
         <p className="mb-6 text-sm text-muted">
-          Your name is optional and only used to personalize your report. No account or login is
-          required
-          {user ? (
-            "."
-          ) : (
-            <>
-              {" "}
-              — though{" "}
-              <Link href="/login" className="text-accent hover:underline">
-                signing in
-              </Link>{" "}
-              lets you keep track of your past interviews.
-            </>
-          )}
+          This name is optional and only used to personalize your report - it doesn&apos;t have
+          to match your account.
         </p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1.5 text-sm font-medium">
