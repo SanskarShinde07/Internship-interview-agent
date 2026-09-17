@@ -16,7 +16,10 @@ export interface SpeechRecognitionAdapter {
   start(): void;
   stop(): void;
   abort(): void;
-  onResult(callback: (transcript: string, isFinal: boolean) => void): void;
+  // finalTranscript/interimTranscript are always the browser's CURRENT
+  // full transcript for this recognition session, not a fragment to
+  // append - see the comment on onresult below for why.
+  onResult(callback: (finalTranscript: string, interimTranscript: string) => void): void;
   onError(callback: (code: SpeechRecognitionErrorCode) => void): void;
   onEnd(callback: () => void): void;
 }
@@ -82,7 +85,8 @@ function mapErrorCode(error: string): SpeechRecognitionErrorCode {
 
 export class BrowserSpeechRecognitionAdapter implements SpeechRecognitionAdapter {
   private recognition: NativeSpeechRecognition | null = null;
-  private resultCallback: ((transcript: string, isFinal: boolean) => void) | null = null;
+  private resultCallback: ((finalTranscript: string, interimTranscript: string) => void) | null =
+    null;
   private errorCallback: ((code: SpeechRecognitionErrorCode) => void) | null = null;
   private endCallback: (() => void) | null = null;
 
@@ -96,10 +100,26 @@ export class BrowserSpeechRecognitionAdapter implements SpeechRecognitionAdapter
     recognition.lang = "en-US";
 
     recognition.onresult = (event) => {
-      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+      // Rebuild the full transcript from the *entire* results array every
+      // time, rather than only processing event.resultIndex onward and
+      // appending fragments. Chrome doesn't reliably honor resultIndex -
+      // it can (and does) re-fire onresult with the same already-final
+      // result included again, which made a naive "append on isFinal"
+      // consumer duplicate the candidate's words 4-5x over. Reconstructing
+      // from scratch each time is idempotent: however many times this
+      // fires, or whatever range it reports, the concatenation of every
+      // currently-final result is the same string.
+      let finalTranscript = "";
+      let interimTranscript = "";
+      for (let i = 0; i < event.results.length; i += 1) {
         const result = event.results[i];
-        this.resultCallback?.(result[0].transcript, result.isFinal);
+        if (result.isFinal) {
+          finalTranscript += `${result[0].transcript} `;
+        } else {
+          interimTranscript += result[0].transcript;
+        }
       }
+      this.resultCallback?.(finalTranscript.trim(), interimTranscript.trim());
     };
     recognition.onerror = (event) => {
       this.errorCallback?.(mapErrorCode(event.error));
@@ -127,7 +147,7 @@ export class BrowserSpeechRecognitionAdapter implements SpeechRecognitionAdapter
     this.recognition?.abort();
   }
 
-  onResult(callback: (transcript: string, isFinal: boolean) => void): void {
+  onResult(callback: (finalTranscript: string, interimTranscript: string) => void): void {
     this.resultCallback = callback;
   }
 

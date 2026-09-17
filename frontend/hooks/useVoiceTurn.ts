@@ -56,14 +56,15 @@ export function useVoiceTurn() {
       }, SILENCE_TIMEOUT_MS);
     }
 
-    recognition.onResult((transcript, isFinal) => {
+    recognition.onResult((finalTranscript, interimTranscript) => {
+      // finalTranscript/interimTranscript are always the adapter's CURRENT
+      // full transcript for this recognition session (see the comment in
+      // speech-recognition.ts) - assign, don't append, or the same
+      // duplicate-delivery quirk that motivated that design would just
+      // resurface here instead.
       resetSilenceTimer();
-      if (isFinal) {
-        accumulatedFinal = `${accumulatedFinal} ${transcript}`.trim();
-        setInterimText(accumulatedFinal);
-      } else {
-        setInterimText(`${accumulatedFinal} ${transcript}`.trim());
-      }
+      accumulatedFinal = finalTranscript;
+      setInterimText(finalTranscript ? `${finalTranscript} ${interimTranscript}`.trim() : interimTranscript);
     });
 
     recognition.onError((code) => {
