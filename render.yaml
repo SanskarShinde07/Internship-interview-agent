@@ -1,7 +1,9 @@
 # Render Blueprint (docs/BLUEPRINT.md §21). Deploy via
-# https://dashboard.render.com/blueprints -> point at this repo, root
-# directory "backend". A persistent disk keeps the SQLite file across
-# deploys/restarts; migrate to Postgres (see §21) if you outgrow it.
+# https://dashboard.render.com/blueprints -> point at this repo. Render
+# auto-detects this file at the repo root; `rootDir: backend` below tells
+# it where the actual service code lives in this monorepo. A persistent
+# disk keeps the SQLite file across deploys/restarts; migrate to Postgres
+# (see §21) if you outgrow it.
 services:
   - type: web
     name: intervue-ai-backend

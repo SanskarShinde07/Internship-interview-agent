@@ -7,29 +7,46 @@ config files already committed in this repo.
 
 ## 1. Backend (Render)
 
-1. Go to https://dashboard.render.com/blueprints and connect this GitHub
-   repository.
-2. Render will detect `backend/render.yaml` automatically. Confirm the
-   root directory is `backend`.
-3. Before the first deploy, set these secret env vars in the Render
-   dashboard (they're marked `sync: false` in `render.yaml` so Render
-   won't ask you to commit them):
-   - `GEMINI_API_KEY` - your Gemini API key.
-   - `ALLOWED_ORIGINS` - a JSON array with your Vercel frontend's exact
-     URL once you have it, e.g. `["https://intervue-ai.vercel.app"]`.
-     (You can leave this as `localhost` initially and come back to it
-     after step 2 gives you the real Vercel URL - see step 3 below.)
-4. Deploy. Render will run `pip install -r requirements.txt`, then
-   `bash scripts/start_prod.sh`, which applies Alembic migrations, seeds
-   the question bank, and starts uvicorn bound to Render's `$PORT`.
-5. Note the resulting backend URL, e.g. `https://intervue-ai-backend.onrender.com`.
-   Health check: `GET /api/v1/health` should return `{"status":"ok"}`.
+The Blueprint file lives at the **repo root**: `render.yaml`. Render's
+Blueprint flow auto-detects it there; you don't point it at `backend/`
+yourself - the `rootDir: backend` line inside `render.yaml` is what tells
+Render the actual service code lives in that subdirectory.
+
+1. Sign in at https://dashboard.render.com (create a free account if you
+   don't have one).
+2. Click **New +** (top right) -> **Blueprint**.
+3. Under "Connect a repository", authorize Render to access GitHub if
+   prompted, then find and select
+   `SanskarShinde07/Internship-interview-agent`.
+4. Render reads `render.yaml` from the repo root automatically and shows
+   a preview: one service, `intervue-ai-backend`. Give the Blueprint a
+   name (anything) and click **Apply** (or **Create New Resources**,
+   depending on Render's current UI wording).
+5. Render creates the service but the first deploy will fail (or sit
+   waiting) until you fill in the two secret env vars - these are marked
+   `sync: false` in `render.yaml` specifically so Render prompts you for
+   them instead of expecting them committed to the repo:
+   - Open the new `intervue-ai-backend` service -> **Environment** tab.
+   - Set `GEMINI_API_KEY` to your Gemini API key
+     (https://aistudio.google.com/apikey).
+   - Set `ALLOWED_ORIGINS` to `["http://localhost:3000"]` for now - you'll
+     update this to your real Vercel URL in step 3 below once it exists.
+   - Save changes; Render will redeploy automatically.
+6. Watch the **Logs** tab. A healthy deploy runs `pip install -r
+   requirements.txt`, then `bash scripts/start_prod.sh`, which applies
+   Alembic migrations, seeds the question bank, and starts uvicorn bound
+   to Render's `$PORT`.
+7. Once live, note the backend URL shown at the top of the service page,
+   e.g. `https://intervue-ai-backend.onrender.com`. Confirm it works by
+   opening `https://<that-url>/api/v1/health` in a browser - it should
+   return `{"status":"ok"}`.
 
 Railway alternative: the same `backend/Procfile` (`web: bash
 scripts/start_prod.sh`) works on Railway - create a new project from this
-repo, set the root directory to `backend`, add the same env vars listed
-above (plus `ENVIRONMENT=production`, `GEMINI_MODEL`, etc. - see
-`.env.example`), and Railway's Nixpacks builder will pick up the Procfile.
+repo, set the service's root directory to `backend` in Railway's project
+settings, add the same env vars listed above (plus `ENVIRONMENT=production`,
+`GEMINI_MODEL`, etc. - see `.env.example`), and Railway's Nixpacks builder
+will pick up the Procfile.
 
 ## 2. Frontend (Vercel)
 
