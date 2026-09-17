@@ -7,6 +7,15 @@ import { useAuth } from "@/lib/auth-context";
 export function Header() {
   const { user, logout } = useAuth();
 
+  // No navigation here on purpose: the only page that needs signed-out
+  // visitors kept out is /history, and it already redirects itself away
+  // (via its own effect watching `user`) the instant this clears the auth
+  // state - having the Header *also* navigate raced against that guard
+  // and the two could land on different URLs depending on which ran last.
+  // Every other page is intentionally accessible without an account, so
+  // logging out from one of them should just flip the header, not force
+  // a redirect.
+
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -13,11 +13,19 @@ import { Input } from "@/components/ui/Input";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { user, isLoading: isAuthLoading, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Landing here already signed in (e.g. the back button after a
+    // previous login) should bounce away, not show the form again.
+    if (!isAuthLoading && user) {
+      router.replace("/history");
+    }
+  }, [user, isAuthLoading, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,7 +33,9 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(email.trim(), password);
-      router.push("/history");
+      // replace, not push: once logged in, the back button shouldn't
+      // return to the login form.
+      router.replace("/history");
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Could not log in. Please try again.",

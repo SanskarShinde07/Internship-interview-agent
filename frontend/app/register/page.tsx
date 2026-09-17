@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -13,13 +13,21 @@ import { Input } from "@/components/ui/Input";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register } = useAuth();
+  const { user, isLoading: isAuthLoading, register } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Landing here already signed in (e.g. the back button) should
+    // bounce away, not show a fresh sign-up form.
+    if (!isAuthLoading && user) {
+      router.replace("/history");
+    }
+  }, [user, isAuthLoading, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,7 +45,9 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       await register(email.trim(), password, displayName.trim() || undefined);
-      router.push("/history");
+      // replace, not push: once registered, the back button shouldn't
+      // return to the sign-up form.
+      router.replace("/history");
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Could not create your account. Please try again.",
