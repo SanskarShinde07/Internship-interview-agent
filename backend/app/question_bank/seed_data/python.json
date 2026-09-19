@@ -1,0 +1,113 @@
+[
+  {
+    "round": "PYTHON",
+    "topic": "fundamentals",
+    "subtopic": "data_types",
+    "difficulty": 1,
+    "question_text": "What is the difference between a list and a tuple in Python, and when would you use each?",
+    "expected_concepts": ["mutability", "list", "tuple", "performance", "use_case"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "data_structures",
+    "subtopic": "dictionaries",
+    "difficulty": 2,
+    "question_text": "How does a Python dictionary achieve average O(1) lookup time? What happens on a hash collision?",
+    "expected_concepts": ["hash_table", "hashing", "collision_resolution", "amortized_complexity"],
+    "prerequisites": ["data_types"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "data_structures",
+    "subtopic": "comprehensions",
+    "difficulty": 2,
+    "question_text": "Write a list comprehension that returns the squares of all even numbers in a list, and explain why comprehensions are often preferred over explicit loops in Python.",
+    "expected_concepts": ["list_comprehension", "readability", "performance", "generator_expression"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "functions",
+    "subtopic": "args_kwargs",
+    "difficulty": 2,
+    "question_text": "Explain the difference between *args and **kwargs. Can you give an example where you'd use both in the same function signature?",
+    "expected_concepts": ["variadic_arguments", "positional_arguments", "keyword_arguments", "unpacking"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "functions",
+    "subtopic": "closures_decorators",
+    "difficulty": 3,
+    "question_text": "What is a closure in Python, and how do decorators use closures under the hood? Walk me through what happens when you apply a decorator to a function.",
+    "expected_concepts": ["closure", "decorator", "higher_order_function", "scope", "free_variable"],
+    "prerequisites": ["args_kwargs"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "oop",
+    "subtopic": "classes",
+    "difficulty": 2,
+    "question_text": "What's the difference between an instance method, a classmethod, and a staticmethod in Python? When would you choose each?",
+    "expected_concepts": ["instance_method", "classmethod", "staticmethod", "self", "cls"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "oop",
+    "subtopic": "inheritance",
+    "difficulty": 3,
+    "question_text": "How does Python resolve method calls when a class inherits from multiple parent classes? What is the MRO (Method Resolution Order)?",
+    "expected_concepts": ["multiple_inheritance", "MRO", "C3_linearization", "super"],
+    "prerequisites": ["classes"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "numpy",
+    "subtopic": "vectorization",
+    "difficulty": 2,
+    "question_text": "Why is a NumPy vectorized operation typically much faster than an equivalent Python for-loop over a list?",
+    "expected_concepts": ["vectorization", "contiguous_memory", "SIMD", "C_implementation", "broadcasting"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "numpy",
+    "subtopic": "broadcasting",
+    "difficulty": 3,
+    "question_text": "Explain NumPy broadcasting rules. What happens if you try to add a (3,4) array and a (4,) array? What about a (3,4) and a (3,1) array?",
+    "expected_concepts": ["broadcasting_rules", "shape_alignment", "trailing_dimensions"],
+    "prerequisites": ["vectorization"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "pandas",
+    "subtopic": "dataframe_basics",
+    "difficulty": 2,
+    "question_text": "What's the difference between .loc and .iloc in pandas? Give an example of when using the wrong one would cause a bug.",
+    "expected_concepts": ["label_based_indexing", "position_based_indexing", "dataframe"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "pandas",
+    "subtopic": "groupby",
+    "difficulty": 3,
+    "question_text": "Walk me through what happens internally when you call groupby().agg() on a DataFrame. How would you compute the mean of one column and the max of another in a single groupby call?",
+    "expected_concepts": ["split_apply_combine", "groupby", "aggregation", "multiple_aggregations"],
+    "prerequisites": ["dataframe_basics"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "problem_solving",
+    "subtopic": "algorithms",
+    "difficulty": 4,
+    "question_text": "Given a large list of numbers, how would you efficiently find the k most frequent elements? What's the time complexity of your approach?",
+    "expected_concepts": ["hash_map", "heap", "time_complexity", "counting"],
+    "followup_hints": ["Ask why they didn't just sort everything", "Ask about the heap-based approach's complexity vs sorting"]
+  },
+  {
+    "round": "PYTHON",
+    "topic": "problem_solving",
+    "subtopic": "generators",
+    "difficulty": 4,
+    "question_text": "How would you process a 50GB CSV file in Python without loading it all into memory? What role do generators play here?",
+    "expected_concepts": ["generators", "lazy_evaluation", "chunking", "memory_efficiency", "iterators"],
+    "prerequisites": ["closures_decorators"]
+  }
+]

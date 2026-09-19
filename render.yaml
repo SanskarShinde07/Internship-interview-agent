@@ -1,0 +1,87 @@
+# Render Blueprint (docs/BLUEPRINT.md §21). Deploy via
+# https://dashboard.render.com/blueprints -> point at this repo. Render
+# auto-detects this file at the repo root; each service's `rootDir` below
+# tells it where that service's code lives in this monorepo.
+#
+# Backend uses the managed Postgres instance below (`intervue-ai-db`),
+# not SQLite - a free-tier web service has no persistent disk, so a
+# SQLite file on it resets on every redeploy AND on every idle spin-down
+# (free services sleep after ~15 min and lose their local disk on the
+# next cold start), wiping every registered account. Postgres lives on
+# its own instance and survives backend restarts. Render's free Postgres
+# plan expires 30 days after creation unless upgraded to a paid plan -
+# see docs/DEPLOYMENT.md.
+databases:
+  - name: intervue-ai-db
+    plan: free
+    databaseName: intervue
+    user: intervue
+
+services:
+  - type: web
+    name: intervue-ai-frontend
+    runtime: node
+    plan: free
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start -- -p $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: 22.11.0
+      # Baked into the client bundle at build time - update this and
+      # redeploy if the backend's URL ever changes.
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://intervue-ai-backend-yjez.onrender.com/api/v1
+  - type: web
+    name: intervue-ai-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash scripts/start_prod.sh
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.10
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: intervue-ai-db
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.6-flash
+      - key: GEMINI_REQUEST_TIMEOUT_SECONDS
+        value: "15.0"
+      - key: GEMINI_MAX_RETRIES
+        value: "1"
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: MAX_SESSION_DURATION_MINUTES
+        value: "60"
+      - key: MAX_QUESTIONS_PER_SESSION
+        value: "40"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "20"
+      # Auth - JWT_SECRET_KEY has no safe default; the app refuses to
+      # start in production without one. Generate one with:
+      #   python -c "import secrets; print(secrets.token_urlsafe(48))"
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_MINUTES
+        value: "10080"
+      - key: PASSWORD_RESET_TOKEN_EXPIRE_MINUTES
+        value: "30"
+      - key: AUTH_RATE_LIMIT_PER_MINUTE
+        value: "10"
+      # Optional - leave unset and password-reset links are logged
+      # instead of emailed (see app/core/email.py).
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: InterVue AI <onboarding@resend.dev>
+      - key: FRONTEND_URL
+        value: https://internship-interview-agent.onrender.com
