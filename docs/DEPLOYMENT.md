@@ -87,10 +87,12 @@ setup -> instructions -> interview (a few answers) -> report -> analytics
 - The `ENVIRONMENT=production` env var (set by `render.yaml`) disables
   the `/docs`, `/redoc`, and `/openapi.json` endpoints on the backend -
   this is expected, not a bug.
-- Render's free tier doesn't support persistent disks, so SQLite lives on
-  the instance's ephemeral local disk and resets on every redeploy or
-  restart. That's fine for a practice-interview demo; see BLUEPRINT.md
-  §21 for the Postgres migration path if you need data to persist.
+- The backend uses the managed Postgres instance (`intervue-ai-db`)
+  defined in `render.yaml`, not SQLite - a free-tier web service has no
+  persistent disk, so a SQLite file there resets on every redeploy and
+  every idle spin-down, wiping all registered accounts. Render's free
+  Postgres plan expires 30 days after creation; upgrade it to a paid
+  plan before then if you need accounts to persist beyond that.
 - Free-tier Render services spin down after inactivity and take ~30-60s
   to wake on the next request - the first request after a quiet period
   will feel slow. That's a free-tier limitation, not a bug.

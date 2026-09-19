@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,6 +9,16 @@ class Settings(BaseSettings):
 
     environment: str = "development"
     database_url: str = "sqlite:///./data/intervue.db"
+
+    @field_validator("database_url")
+    @classmethod
+    def _normalize_postgres_scheme(cls, value: str) -> str:
+        # Some hosts (Render/Heroku-style) hand out connection strings
+        # prefixed "postgres://", a scheme SQLAlchemy 2.x's psycopg2
+        # dialect no longer accepts - normalize to "postgresql://".
+        if value.startswith("postgres://"):
+            return "postgresql://" + value.removeprefix("postgres://")
+        return value
     gemini_api_key: str = ""
     gemini_model: str = "gemini-3.6-flash"
     gemini_request_timeout_seconds: float = 15.0

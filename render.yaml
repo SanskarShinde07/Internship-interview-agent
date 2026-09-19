@@ -3,12 +3,20 @@
 # auto-detects this file at the repo root; each service's `rootDir` below
 # tells it where that service's code lives in this monorepo.
 #
-# No persistent disk: Render's free tier doesn't support one. SQLite
-# lives on the free-tier instance's ephemeral local disk, so the DB
-# resets on every redeploy/restart - acceptable for a mock-interview demo
-# app where sessions are practice runs, not permanent records. Upgrade to
-# a paid plan and add a `disk:` block (see git history), or migrate to
-# Postgres (§21), if you need data to persist.
+# Backend uses the managed Postgres instance below (`intervue-ai-db`),
+# not SQLite - a free-tier web service has no persistent disk, so a
+# SQLite file on it resets on every redeploy AND on every idle spin-down
+# (free services sleep after ~15 min and lose their local disk on the
+# next cold start), wiping every registered account. Postgres lives on
+# its own instance and survives backend restarts. Render's free Postgres
+# plan expires 30 days after creation unless upgraded to a paid plan -
+# see docs/DEPLOYMENT.md.
+databases:
+  - name: intervue-ai-db
+    plan: free
+    databaseName: intervue
+    user: intervue
+
 services:
   - type: web
     name: intervue-ai-frontend
@@ -37,7 +45,9 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: DATABASE_URL
-        value: sqlite:///./data/intervue.db
+        fromDatabase:
+          name: intervue-ai-db
+          property: connectionString
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
