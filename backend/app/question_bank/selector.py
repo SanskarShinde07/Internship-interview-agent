@@ -15,6 +15,7 @@ this activates automatically once a seed file gains multiple difficulty
 variants per subtopic.
 """
 
+import random
 import uuid
 
 from sqlalchemy import select
@@ -25,9 +26,17 @@ from app.db.models import BankRound, InterviewQuestion, QuestionBankItem, Questi
 
 
 def _closest_difficulty(
-    items: list[QuestionBankItem], target_difficulty: int
+    items: list[QuestionBankItem], target_difficulty: int, session_id: uuid.UUID
 ) -> QuestionBankItem:
-    return min(items, key=lambda item: (abs(item.difficulty - target_difficulty), item.id))
+    closest = min(abs(item.difficulty - target_difficulty) for item in items)
+    tied = [item for item in items if abs(item.difficulty - target_difficulty) == closest]
+    # A stable, session-seeded pick among ties rather than always the
+    # lowest item.id - otherwise this fallback path (reached once every
+    # subtopic in the round has been asked at least once) reintroduces
+    # the exact same "identical every attempt" bug the checklist shuffle
+    # above fixes, just later in the round.
+    rng = random.Random(f"{session_id}:{sorted(item.id for item in tied)}")
+    return rng.choice(tied)
 
 
 def select_next_bank_question(
@@ -55,10 +64,10 @@ def select_next_bank_question(
             .all()
         )
         if candidates:
-            return _closest_difficulty(candidates, target_difficulty)
+            return _closest_difficulty(candidates, target_difficulty, session_id)
 
     remaining = db.execute(base_query).scalars().all()
     if remaining:
-        return _closest_difficulty(remaining, target_difficulty)
+        return _closest_difficulty(remaining, target_difficulty, session_id)
 
     return None
