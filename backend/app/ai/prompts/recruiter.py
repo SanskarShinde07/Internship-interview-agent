@@ -54,6 +54,6 @@ def build_user_prompt(
     return (
         "CANDIDATE RESULTS (final, ground truth - do not alter these numbers):\n"
         "```json\n"
-        f"{json.dumps(payload, indent=2)}\n"
+        f"{json.dumps(payload, indent=2, default=str)}\n"
         "```"
     )
