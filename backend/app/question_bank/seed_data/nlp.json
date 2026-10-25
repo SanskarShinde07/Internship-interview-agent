@@ -1,0 +1,96 @@
+[
+  {
+    "round": "NLP",
+    "topic": "text_preprocessing",
+    "subtopic": "tokenization",
+    "difficulty": 1,
+    "question_text": "What is tokenization in NLP? What's a challenge with tokenizing languages like Chinese that don't use whitespace between words?",
+    "expected_concepts": ["tokenization", "whitespace_splitting", "subword_tokenization"]
+  },
+  {
+    "round": "NLP",
+    "topic": "text_preprocessing",
+    "subtopic": "stemming_lemmatization",
+    "difficulty": 2,
+    "question_text": "What's the difference between stemming and lemmatization? Give an example where they'd produce different results.",
+    "expected_concepts": ["stemming", "lemmatization", "morphology", "vocabulary_reduction"],
+    "prerequisites": ["tokenization"]
+  },
+  {
+    "round": "NLP",
+    "topic": "text_representation",
+    "subtopic": "tfidf",
+    "difficulty": 2,
+    "question_text": "How does TF-IDF weight a word's importance in a document? Why does it downweight very common words differently than just removing stopwords?",
+    "expected_concepts": ["term_frequency", "inverse_document_frequency", "stopwords", "sparse_representation"]
+  },
+  {
+    "round": "NLP",
+    "topic": "text_representation",
+    "subtopic": "word_embeddings",
+    "difficulty": 3,
+    "question_text": "What problem do word embeddings like Word2Vec solve that one-hot encoding or TF-IDF don't? What does it mean that 'king - man + woman ≈ queen'?",
+    "expected_concepts": ["dense_vectors", "semantic_similarity", "distributional_hypothesis", "vector_arithmetic"],
+    "prerequisites": ["tfidf"]
+  },
+  {
+    "round": "NLP",
+    "topic": "deep_learning_nlp",
+    "subtopic": "attention",
+    "difficulty": 4,
+    "question_text": "What problem does the attention mechanism solve compared to a plain RNN/LSTM encoder-decoder? Explain at a high level what 'self-attention' computes.",
+    "expected_concepts": ["attention_mechanism", "self_attention", "long_range_dependencies", "query_key_value"]
+  },
+  {
+    "round": "NLP",
+    "topic": "deep_learning_nlp",
+    "subtopic": "transformers",
+    "difficulty": 4,
+    "question_text": "Why did Transformers largely replace RNNs for NLP tasks? What's the tradeoff between a Transformer's parallelizability and an RNN's sequential processing?",
+    "expected_concepts": ["transformer_architecture", "parallelization", "positional_encoding", "self_attention"],
+    "prerequisites": ["attention"]
+  },
+  {
+    "round": "NLP",
+    "topic": "deep_learning_nlp",
+    "subtopic": "bert",
+    "difficulty": 4,
+    "question_text": "How is BERT's pretraining objective (masked language modeling) different from a traditional left-to-right language model like GPT's? Why does this make BERT better suited for some tasks and worse for others?",
+    "expected_concepts": ["masked_language_modeling", "bidirectional_context", "pretraining", "fine_tuning", "autoregressive_modeling"],
+    "prerequisites": ["transformers"]
+  },
+  {
+    "round": "NLP",
+    "topic": "llms",
+    "subtopic": "llm_basics",
+    "difficulty": 3,
+    "question_text": "At a high level, how does a large language model generate text one token at a time? What role does temperature play in sampling?",
+    "expected_concepts": ["autoregressive_generation", "next_token_prediction", "sampling", "temperature"]
+  },
+  {
+    "round": "NLP",
+    "topic": "llms",
+    "subtopic": "prompt_engineering",
+    "difficulty": 3,
+    "question_text": "What's the difference between zero-shot, few-shot, and chain-of-thought prompting? When would you reach for each?",
+    "expected_concepts": ["zero_shot", "few_shot", "chain_of_thought", "in_context_learning"]
+  },
+  {
+    "round": "NLP",
+    "topic": "llms",
+    "subtopic": "rag",
+    "difficulty": 4,
+    "question_text": "What problem does Retrieval-Augmented Generation (RAG) solve for LLMs? Walk me through the pipeline from a user query to a final generated answer.",
+    "expected_concepts": ["retrieval_augmented_generation", "vector_search", "embeddings", "hallucination_mitigation", "context_window"],
+    "prerequisites": ["llm_basics"],
+    "followup_hints": ["Ask how they'd evaluate whether the retrieved context is actually relevant", "Ask what happens if the retriever returns irrelevant documents"]
+  },
+  {
+    "round": "NLP",
+    "topic": "evaluation",
+    "subtopic": "nlp_metrics",
+    "difficulty": 3,
+    "question_text": "How would you evaluate a text summarization model? Why is exact string match not a good metric here?",
+    "expected_concepts": ["rouge_score", "bleu_score", "semantic_similarity", "human_evaluation"]
+  }
+]

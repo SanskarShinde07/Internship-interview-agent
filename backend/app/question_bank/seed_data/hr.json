@@ -1,0 +1,50 @@
+[
+  {
+    "round": "HR",
+    "topic": "behavioral",
+    "subtopic": "challenge",
+    "difficulty": 2,
+    "question_text": "Tell me about a challenging technical problem you faced in a project. How did you approach solving it?",
+    "expected_concepts": ["problem_solving_approach", "specific_example", "outcome", "reflection"]
+  },
+  {
+    "round": "HR",
+    "topic": "behavioral",
+    "subtopic": "failure",
+    "difficulty": 3,
+    "question_text": "Describe a project or experiment that didn't go as planned. What did you learn from it?",
+    "expected_concepts": ["accountability", "specific_example", "lessons_learned", "growth"]
+  },
+  {
+    "round": "HR",
+    "topic": "behavioral",
+    "subtopic": "teamwork",
+    "difficulty": 2,
+    "question_text": "Tell me about a time you disagreed with a teammate about a technical approach. How did you resolve it?",
+    "expected_concepts": ["collaboration", "conflict_resolution", "communication", "specific_example"]
+  },
+  {
+    "round": "HR",
+    "topic": "behavioral",
+    "subtopic": "motivation",
+    "difficulty": 1,
+    "question_text": "What draws you specifically to machine learning engineering, as opposed to other software engineering paths?",
+    "expected_concepts": ["genuine_interest", "specificity", "self_awareness"]
+  },
+  {
+    "round": "HR",
+    "topic": "behavioral",
+    "subtopic": "why_hire",
+    "difficulty": 2,
+    "question_text": "Why should we choose you for this internship over other candidates with similar technical backgrounds?",
+    "expected_concepts": ["self_awareness", "concrete_strengths", "relevance_to_role"]
+  },
+  {
+    "round": "HR",
+    "topic": "behavioral",
+    "subtopic": "learning",
+    "difficulty": 2,
+    "question_text": "Tell me about a time you had to learn a new tool, library, or concept quickly to complete a project. How did you approach it?",
+    "expected_concepts": ["learning_agility", "specific_example", "resourcefulness"]
+  }
+]

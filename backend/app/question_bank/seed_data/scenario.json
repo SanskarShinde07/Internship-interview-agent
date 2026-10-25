@@ -1,0 +1,50 @@
+[
+  {
+    "round": "SCENARIO",
+    "topic": "diagnosis",
+    "subtopic": "overfitting_diagnosis",
+    "difficulty": 2,
+    "question_text": "Your model has 98% training accuracy but only 70% validation accuracy. What would you investigate, and what would you try to close the gap?",
+    "expected_concepts": ["overfitting", "regularization", "more_data", "simpler_model", "cross_validation"]
+  },
+  {
+    "round": "SCENARIO",
+    "topic": "data_quality",
+    "subtopic": "class_imbalance",
+    "difficulty": 3,
+    "question_text": "Your dataset contains significant class imbalance — 95% of examples are the negative class. How would you approach modeling this, from data to metric choice?",
+    "expected_concepts": ["class_imbalance", "resampling", "class_weights", "smote", "appropriate_metrics"]
+  },
+  {
+    "round": "SCENARIO",
+    "topic": "deployment",
+    "subtopic": "deployment_drift",
+    "difficulty": 4,
+    "question_text": "Your model performs well in offline evaluation but poorly after deployment. What are the possible causes, and how would you narrow down which one it is?",
+    "expected_concepts": ["data_drift", "training_serving_skew", "label_leakage", "distribution_shift", "monitoring"]
+  },
+  {
+    "round": "SCENARIO",
+    "topic": "data_quality",
+    "subtopic": "data_leakage",
+    "difficulty": 4,
+    "question_text": "A colleague's model gets suspiciously high accuracy on a fraud detection task. What kinds of data leakage would you check for before trusting that result?",
+    "expected_concepts": ["data_leakage", "target_leakage", "temporal_leakage", "train_test_contamination"]
+  },
+  {
+    "round": "SCENARIO",
+    "topic": "resource_constraints",
+    "subtopic": "limited_data",
+    "difficulty": 3,
+    "question_text": "You're asked to build a classifier but only have 200 labeled examples. What approaches would you consider to still get a usable model?",
+    "expected_concepts": ["transfer_learning", "data_augmentation", "simpler_models", "active_learning", "few_shot_learning"]
+  },
+  {
+    "round": "SCENARIO",
+    "topic": "resource_constraints",
+    "subtopic": "latency_constraints",
+    "difficulty": 4,
+    "question_text": "Your best-performing model is a large ensemble, but the product requires predictions in under 50ms on a CPU. How would you approach this tradeoff?",
+    "expected_concepts": ["model_compression", "distillation", "simpler_model_tradeoff", "latency_accuracy_tradeoff", "quantization"]
+  }
+]
